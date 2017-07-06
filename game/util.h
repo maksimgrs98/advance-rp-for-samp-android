@@ -1,0 +1,21 @@
+#pragma once
+
+PED_TYPE * GamePool_Ped_GetAt(int iID);
+int GamePool_Ped_GetIndex(PED_TYPE *pActor);
+PED_TYPE *GamePool_FindPlayerPed();
+
+bool IsValidModel(int iModelID);
+
+VEHICLE_TYPE *GamePool_Vehicle_GetAt(int iID);
+uint32_t GamePool_Vehicle_GetIndex(VEHICLE_TYPE *pVehicle);
+
+ENTITY_TYPE *GamePool_Object_GetAt(int iID);
+
+void SetPlayerPedPtrRecord(uint8_t bytePlayer, uint32_t dwPedPtr);
+uint8_t FindPlayerNumFromPedPtr(uint32_t dwPedPtr);
+
+float DegToRad(float fDegrees);
+float FloatOffset(float f1, float f2);
+
+void ConvertMatrixToQuaternion(PQUATERNION q, PMATRIX4X4 m);
+void ConvertQuaternionToMatrix(PMATRIX4X4 m, PQUATERNION q);
