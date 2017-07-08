@@ -105,6 +105,13 @@ uint8_t CGame::IsModelLoaded(int iModelID)
 	return ret;
 }
 
+void CGame::RemoveModel(int iModelID)
+{
+	void (*RemoveModel)(int iModelID);
+    *(void **) (&RemoveModel) = (void*)(g_libGTASA+0x290C4C+1);
+    (*RemoveModel)(iModelID);
+}
+
 void CGame::SetWorldTime(int iHour, int iMinute)
 {
 	*(uint8_t*)(g_libGTASA+0x8B18A4) = (uint8_t)iMinute;

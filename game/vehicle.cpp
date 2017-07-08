@@ -74,7 +74,13 @@ CVehicle::~CVehicle()
 		}
 		else
 		{
+			int nModelIndex = m_pVehicle->entity.nModelIndex;
 			ScriptCommand(&destroy_car, m_dwGTAId);
+			if(!GetModelReferenceCount(nModelIndex))
+			{
+				LOGI("~CVehicle: RemoveModel(%d)", nModelIndex);
+				pGame->RemoveModel(nModelIndex);
+			}
 		}
 	}
 }

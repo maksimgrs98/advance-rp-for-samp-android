@@ -60,6 +60,14 @@ bool IsValidModel(int iModelID)
     return true;
 }
 
+uint16_t GetModelReferenceCount(int nModelIndex)
+{
+	uintptr_t *dwModelarray = (uintptr_t*)(g_libGTASA+0x87BF48);
+	uint8_t *pModelInfoStart = (uint8_t*)dwModelarray[nModelIndex];
+	
+	return *(uint16_t*)(pModelInfoStart+0x1E);
+}
+
 void SetPlayerPedPtrRecord(uint8_t bytePlayer, uint32_t dwPedPtr) 
 {
 	dwPlayerPedPtrs[bytePlayer] = dwPedPtr;

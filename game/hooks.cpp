@@ -11,6 +11,16 @@ uint32_t dwCurPlayerActor = 0;
 uint8_t byteCurPlayer = 0;
 uint8_t byteCurDriver = 0;
 
+bool state = true;
+void tst()
+{
+	CCamera *pGameCamera;
+	pGameCamera->Restore();
+	pGameCamera->SetBehindPlayer();
+	pGame->DisplayHUD(true);
+	pGame->FindPlayerPed()->TeleportTo(2495.0820, -1667.7239, 13.3438 + 1.0f);
+}
+
 void (*Render2dStuff)();
 void Render2dStuff_hook()
 {
@@ -21,6 +31,12 @@ void Render2dStuff_hook()
 
 	//if(pChatWindow)
 	//	pChatWindow->Draw();
+
+	if(state == false)
+	{
+		state = true;
+		tst();
+	}
 
 	return (*Render2dStuff)();
 }

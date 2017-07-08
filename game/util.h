@@ -5,6 +5,7 @@ int GamePool_Ped_GetIndex(PED_TYPE *pActor);
 PED_TYPE *GamePool_FindPlayerPed();
 
 bool IsValidModel(int iModelID);
+uint16_t GetModelReferenceCount(int nModelIndex);
 
 VEHICLE_TYPE *GamePool_Vehicle_GetAt(int iID);
 uint32_t GamePool_Vehicle_GetIndex(VEHICLE_TYPE *pVehicle);
