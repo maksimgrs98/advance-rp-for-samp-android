@@ -2,6 +2,7 @@
 #include "util.h"
 #include "keystuff.h"
 
+extern CChatWindow *pChatWindow;
 extern CNetGame *pNetGame;
 extern CGame *pGame;
 
@@ -29,8 +30,8 @@ void Render2dStuff_hook()
 	if (pNetGame)
 		pNetGame->Process();
 
-	//if(pChatWindow)
-	//	pChatWindow->Draw();
+	if(pChatWindow)
+		pChatWindow->Draw();
 
 	if(state == false)
 	{

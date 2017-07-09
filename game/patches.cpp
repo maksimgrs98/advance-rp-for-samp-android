@@ -43,9 +43,7 @@ void ApplyInGamePatches()
 	NOP(g_libGTASA+0x398A34, 2);
 
 	// ToggleDebugFPS
-	void (*ToggleDebugFps)();
-    *(void **) (&ToggleDebugFps) = (void*)(g_libGTASA+0x39A02C+1);
-    (*ToggleDebugFps)();
+	//*(uint8_t*)(g_libGTASA+0x8ED875) = 1;
 
     // VehicleStruct increase (0x32C*0x50 = 0xFDC0)
     WriteMemory(g_libGTASA+0x405338, "\x4F\xF6\xC0\x50", 4);	// MOV  R0, #0xFDC0
