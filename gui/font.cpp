@@ -119,9 +119,9 @@ void CFont::SetBackgroundColor(uint32_t color)
     (*_SetBackgroundColor)(color);
 }
 
-int CFont::GetStringWidth(char *string, bool unk1, bool unk2)
+float CFont::GetStringWidth(char *string, bool unk1, bool unk2)
 {
-	int (*_GetStringWidth)(char *string, bool unk1, bool unk2);
+	float (*_GetStringWidth)(char *string, bool unk1, bool unk2);
     *(void **) (&_GetStringWidth) = (void*)(g_libGTASA+0x534BAC+1);
     return (*_GetStringWidth)(string, unk1, unk2);
 }

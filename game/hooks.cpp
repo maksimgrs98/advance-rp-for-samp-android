@@ -30,6 +30,8 @@ void Render2dStuff_hook()
 	if (pNetGame)
 		pNetGame->Process();
 
+	DrawPlayerTags();
+
 	if(pChatWindow)
 		pChatWindow->Draw();
 

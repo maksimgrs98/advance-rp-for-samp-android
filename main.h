@@ -43,6 +43,7 @@
 #include "net/scriptrpc.h"
 
 #include "gui/font.h"
+#include "gui/gui.h"
 
 #include "chatwindow.h"
 

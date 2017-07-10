@@ -14,6 +14,15 @@ typedef unsigned short PLAYERID;
 #define IN_VEHICLE(x) ((x->dwStateFlags & 0x100) >> 8)
 
 #pragma pack(1)
+typedef struct _RECT
+{
+	float x; // +0
+	float y; // +4
+	float x1; // +8
+	float y1; // +12
+} RECT, *PRECT;
+
+#pragma pack(1)
 typedef struct _VECTOR 
 {
 	float X,Y,Z;

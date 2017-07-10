@@ -29,7 +29,7 @@ public:
 	static void SetOrientation(uint32_t  value);
 	static void SetBackground(bool enable, bool includeWrap);
 	static void SetBackgroundColor(uint32_t color);
-	static int GetStringWidth(char *string, bool unk1, bool unk2);
+	static float GetStringWidth(char *string, bool unk1, bool unk2);
 	static int GetNumberLines(bool print, float x, float y, char *text);
 	static void GetTextRect(void *rect, float x, float y, char *text);
 	static void AsciiToGxtChar(char* ascii, char *gxt);
