@@ -327,24 +327,37 @@ uint32_t  AllVehicles_ProcessControl_Hook(uint32_t thiz)
 
 	byteCurDriver = FindPlayerNumFromPedPtr(pVehicle->pDriver);
 
+	void (*CAEVehicleAudioEntity_Service)(uintptr_t CAEVehicleAudioEntity);
+    *(void **)(&CAEVehicleAudioEntity_Service) = (void*)(g_libGTASA+0x364B64+1);
+
 	if(pVehicle->pDriver && pVehicle->pDriver != GamePool_FindPlayerPed())
 	{
 		// REMOTE PLAYER
+
 		// CWidget::setEnabled
 		// ret 0
 		WriteMemory(g_libGTASA+0x274178, "\x4F\xF0\x00\x00\xF7\x46", 6);
+
+		// radio/engine
+		// допилить
+		pVehicle->pDriver->dwPedType = 4;
+    	(*CAEVehicleAudioEntity_Service)(thiz+0x138);
+    	pVehicle->pDriver->dwPedType = 0;
+
+    	// restore
+		WriteMemory(g_libGTASA+0x274178, "\x80\xB4\x00\xAF\x80\xF8", 6);
 	}
 	else
 	{
 		// LOCAL PLAYER
+
+		// radio/engine
+		(*CAEVehicleAudioEntity_Service)(thiz+0x138);
 	}
 
 	uint32_t (*CAutomobile_ProcessControl)(VEHICLE_TYPE *pVehicle);
     *(void **)(&CAutomobile_ProcessControl) = (void*)(g_libGTASA+0x4E314C+1);
     uint32_t dwRet = (*CAutomobile_ProcessControl)(pVehicle);
-
-    	// restore
-	WriteMemory(g_libGTASA+0x274178, "\x80\xB4\x00\xAF\x80\xF8", 6);
 
     return dwRet;
 }

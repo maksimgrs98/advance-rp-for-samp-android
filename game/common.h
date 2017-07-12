@@ -74,7 +74,9 @@ typedef struct _ENTITY_TYPE
 typedef struct _PED_TYPE
 {
 	ENTITY_TYPE entity; 		// 0000-0184	;entity
-	PADDING(_pad101, 912); 		// 0184-1096
+	PADDING(_pad106, 174);		// 0184-0358
+	uint32_t dwPedType;			// 0358-0362	;dwPedType
+	PADDING(_pad101, 734);		// 0362-1096
 	uint32_t dwAction;			// 1096-1100	;Action
 	PADDING(_pad102, 52);		// 1100-1152
 	uint32_t dwStateFlags; 		// 1152-1156	;StateFlags

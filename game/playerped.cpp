@@ -560,8 +560,11 @@ void CPlayerPed::SetModelIndex(unsigned int uiModel)
 
 		CEntity::SetModelIndex(uiModel);
 
-		// audio stuff
-		// допилить
+		// reset the Ped Audio Attributes
+		LOGI("CAEPedSpeechAudioEntity__Initialize");
+		void (*CAEPedSpeechAudioEntity__Initialize)(uintptr_t pedSAInterface, uintptr_t entity);
+		*(void **) (&CAEPedSpeechAudioEntity__Initialize) = (void*)g_libGTASA+0x34B2A8+1;
+		(CAEPedSpeechAudioEntity__Initialize)(m_pPed+660, m_pPed);
 	}
 }
 

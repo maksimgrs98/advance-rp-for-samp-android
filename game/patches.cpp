@@ -50,4 +50,12 @@ void ApplyInGamePatches()
     WriteMemory(g_libGTASA+0x405342, "\x50\x20", 2);			// MOVS R0, #0x50
     WriteMemory(g_libGTASA+0x405348, "\x50\x22", 2);			// MOVS R2, #0x50
     WriteMemory(g_libGTASA+0x405374, "\x50\x2B", 2);			// CMP  R3, #0x50
+
+    // vehicle radio
+    //CAEVehicleAudioEntity::PlayerAboutToExitVehicleAsDriver
+    WriteMemory(g_libGTASA+0x35BDE4, "\x4F\xF0\x00\x00\xF7\x46", 6);
+    // CAEVehicleAudioEntity::JustWreckedVehicle
+    WriteMemory(g_libGTASA+0x35D2F0, "\x4F\xF0\x00\x00\xF7\x46", 6);
+    // CAEVehicleAudioEntity::TurnOnRadioForVehicle
+    WriteMemory(g_libGTASA+0x35BD4C, "\x4F\xF0\x00\x00\xF7\x46", 6);
 }
