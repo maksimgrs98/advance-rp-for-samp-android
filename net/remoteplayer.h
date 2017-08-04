@@ -22,7 +22,8 @@ public:
 	CRemotePlayer();
 	~CRemotePlayer();
 
-	void UpdateRotation();
+	void UpdatePedRotation();
+	void UpdateVehicleRotation();
 
 	void StateChange(uint8_t byteNewState, uint8_t byteOldState);
 	void SetState(uint8_t byteState);
@@ -44,7 +45,7 @@ public:
 	void UpdateOnfootTargetPosition();
 
 	void UpdateOnFootPositionAndSpeed(VECTOR * vecPos, VECTOR *vecMoveSpeed);
-	void UpdateInCarMatrixAndSpeed(MATRIX4X4 mat, VECTOR vecMove);
+	void UpdateInCarMatrixAndSpeed(MATRIX4X4 *mat, VECTOR *vecPos, VECTOR *vecMove);
 
 	void StoreOnFootFullSyncData(ONFOOT_SYNC_DATA *pofSync);
 	void StoreInCarFullSyncData(INCAR_SYNC_DATA *picSync);
@@ -79,6 +80,8 @@ public:
 	VECTOR			m_vecOnfootTargetSpeed;
 	VECTOR			m_vecIncarTargetPos;
 	VECTOR			m_vecIncarTargetSpeed;
+	VECTOR 			m_vecIncarTargetPosOffset; // 0.3.7 [+83]
+	QUATERNION		m_IncarQuaternion; // 0.3.7 [+95]
 
 	float 			m_fReportedHealth;
 	float 			m_fReportedArmour;

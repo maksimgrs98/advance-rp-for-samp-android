@@ -58,32 +58,30 @@ void CRemotePlayer::Process()
 			{
 				if(!m_pCurrentVehicle) return;
 
-				// MATRIX
-				ConvertQuaternionToMatrix(&matVehicle, &m_icSync.Quat);
+				// 0.3.7
+				CQuaternion::Normalize(&m_icSync.Quat);
+				//ConvertQuaternionToMatrix(&matVehicle, &m_icSync.Quat);
+				CQuaternion::ConvertQuaternionToMatrix(&matVehicle, &m_icSync.Quat);
+
 				matVehicle.pos.X = m_icSync.vecPos.X;
 				matVehicle.pos.Y = m_icSync.vecPos.Y;
 				matVehicle.pos.Z = m_icSync.vecPos.Z;
 
-				// MOVE SPEED
-				vecMoveSpeed.X = m_icSync.vecMoveSpeed.X;
-				vecMoveSpeed.Y = m_icSync.vecMoveSpeed.Y;
-				vecMoveSpeed.Z = m_icSync.vecMoveSpeed.Z;
-
-				if( m_pCurrentVehicle->GetModelIndex() == TRAIN_PASSENGER_LOCO || 
+				if(m_pCurrentVehicle->GetModelIndex() == TRAIN_PASSENGER_LOCO ||
 					m_pCurrentVehicle->GetModelIndex() == TRAIN_FREIGHT_LOCO ||
-					m_pCurrentVehicle->GetModelIndex() == TRAIN_TRAM) 
+					m_pCurrentVehicle->GetModelIndex() == TRAIN_TRAM)
 				{
 					// TRAIN MATRIX UPDATE
 				}
 				else
 				{
 					// GENERIC VEHICLE MATRIX UPDATE
-					UpdateInCarMatrixAndSpeed(matVehicle, vecMoveSpeed);
+					UpdateInCarMatrixAndSpeed(&matVehicle, &m_icSync.vecPos, &m_icSync.vecMoveSpeed);
 					UpdateIncarTargetPosition();
 				}
 
 				m_pCurrentVehicle->SetHealth(m_icSync.fCarHealth);
-
+				
 				m_byteUpdateFromNetwork = UPDATE_TYPE_NONE;
 			}
 
@@ -101,7 +99,7 @@ void CRemotePlayer::Process()
 			// ------ PROCESSED FOR ALL FRAMES ----- 
 			if(GetState() == PLAYER_STATE_ONFOOT)
 			{
-				UpdateRotation(); // SLERP
+				UpdatePedRotation(); // SLERP
 				// UpdateHead();
 				// ProcessSpecialAction();
 				m_pPlayerPed->SetOFKeys(m_ofSync.wKeys, m_ofSync.lrAnalog, m_ofSync.udAnalog);
@@ -110,6 +108,7 @@ void CRemotePlayer::Process()
 			}
 			else if(GetState() == PLAYER_STATE_DRIVER)
 			{
+				UpdateVehicleRotation();
 				m_pPlayerPed->SetICKeys(m_icSync.wKeys, m_icSync.lrAnalog, m_icSync.udAnalog);
 			}
 			else if(GetState() == PLAYER_STATE_PASSENGER)
@@ -174,20 +173,67 @@ void CRemotePlayer::HandleVehicleEntryExit()
 	}
 }
 
-void CRemotePlayer::UpdateRotation()
+void CRemotePlayer::UpdatePedRotation()
 {
 	MATRIX4X4 matEnt;
 
 	if(!m_pPlayerPed) return;
 
 	m_pPlayerPed->GetMatrix(&matEnt);
-	ConvertQuaternionToMatrix(&matEnt, &m_ofSync.Quat);
+	//ConvertQuaternionToMatrix(&matEnt, &m_ofSync.Quat);
+	CQuaternion::ConvertQuaternionToMatrix(&matEnt, &m_ofSync.Quat);
 	m_pPlayerPed->SetMatrix(matEnt);
 	// atan2(r21, r11)
 	float fZ = atan2(-matEnt.up.X, matEnt.right.X);
 
 	m_pPlayerPed->m_pPed->fRotation1 = fZ;
 	m_pPlayerPed->m_pPed->fRotation2 = fZ;
+}
+
+// 0.3.7
+void CRemotePlayer::UpdateVehicleRotation()
+{
+	MATRIX4X4 matEnt;
+	VECTOR vec = { 0, 0, 0 };
+	QUATERNION q;
+
+	if(!m_pCurrentVehicle) return;
+
+	m_pCurrentVehicle->GetTurnSpeedVector(&vec);
+	if(vec.X <= 0.02f)
+	{
+		if(vec.X < -0.02f)
+			vec.X = -0.02f;
+	}
+	else
+		vec.X = 0.02f;
+
+	if (vec.Y <= 0.02f)
+    {
+        if(vec.Y < -0.02f)
+          vec.Y = -0.02f;
+  	}
+      else
+        vec.Y = 0.02f;
+
+    if(vec.Z <= 0.02f)
+    {
+    	if(vec.Z < -0.02f)
+          vec.Z = -0.02f;
+  	}
+  	else
+  		vec.Z = 0.02f;
+
+  	m_pCurrentVehicle->SetTurnSpeedVector(vec);
+
+  	m_pCurrentVehicle->GetMatrix(&matEnt);
+  	CQuaternion::ConvertMatrixToQuaternion(&q, &matEnt);
+  	CQuaternion::Normalize(&q);
+  	QUATERNION slerp;
+  	CQuaternion::Slerp(&slerp, q, m_IncarQuaternion, 0.75f);
+  	CQuaternion::Normalize(&slerp);
+  	CQuaternion::ConvertQuaternionToMatrix(&matEnt, &slerp); // unk();
+  	m_pCurrentVehicle->SetMatrix(matEnt);
 }
 
 void CRemotePlayer::UpdateOnfootTargetPosition()
@@ -239,72 +285,86 @@ void CRemotePlayer::UpdateOnFootPositionAndSpeed(VECTOR * vecPos, VECTOR * vecMo
 	m_vecOnfootTargetSpeed.Z = vecMove->Z;
 }
 
+// 0.3.7
 void CRemotePlayer::UpdateIncarTargetPosition()
 {
-	// допилить
-
-	MATRIX4X4 matEnt;
+	MATRIX4X4 matEnt, mat2;
 	VECTOR vec = { 0.0f, 0.0f, 0.0f };
+	float ofZ = 0.5;
 
 	if(!m_pCurrentVehicle) return;
 
 	m_pCurrentVehicle->GetMatrix(&matEnt);
+	if(/*m_pCurrentVehicle->IsAdded()*/ true)
+	{
+		m_vecIncarTargetPosOffset.X = FloatOffset(m_vecIncarTargetPos.X, matEnt.pos.X);
+		m_vecIncarTargetPosOffset.Y = FloatOffset(m_vecIncarTargetPos.Y, matEnt.pos.Y);
+		m_vecIncarTargetPosOffset.Z = FloatOffset(m_vecIncarTargetPos.Z, matEnt.pos.Z);
 
-	// Directly translate way-out position
-	if(	(FloatOffset(m_vecIncarTargetPos.X, matEnt.pos.X) > 8.0f) ||
-		(FloatOffset(m_vecIncarTargetPos.Y, matEnt.pos.Y) > 8.0f) ||
-		(FloatOffset(m_vecIncarTargetPos.Z, matEnt.pos.Z) > 8.0f) ) 
+		if(m_vecIncarTargetPosOffset.X > 0.05f || 
+			m_vecIncarTargetPosOffset.Y > 0.05f || 
+			m_vecIncarTargetPosOffset.Z > 0.05f)
+		{
+			/*if (m_pCurrentVehicle->GetVehicleSubtype() == VEHICLE_SUBTYPE_BOAT ||
+				m_pCurrentVehicle->GetVehicleSubtype() == VEHICLE_SUBTYPE_PLANE ||
+				m_pCurrentVehicle->GetVehicleSubtype() == VEHICLE_SUBYYPE_HELI)
+					ofZ = 2.0;*/
+
+			if(m_vecIncarTargetPosOffset.X > 8.0f ||
+				m_vecIncarTargetPosOffset.Y > 8.0f ||
+				m_vecIncarTargetPosOffset.Z > ofZ)
+			{
+				matEnt.pos.X = m_vecIncarTargetPos.X;
+				matEnt.pos.Y = m_vecIncarTargetPos.Y;
+				matEnt.pos.Z = m_vecIncarTargetPos.Z;
+
+				memcpy(&mat2, &matEnt, sizeof(MATRIX4X4));
+				m_pCurrentVehicle->SetMatrix(mat2);
+				m_pCurrentVehicle->SetMoveSpeedVector(m_vecIncarTargetSpeed);
+			}
+			else
+			{
+				m_pCurrentVehicle->GetMoveSpeedVector(&vec);
+				
+				if(m_vecIncarTargetPosOffset.X > 0.05f)
+					vec.X += (m_vecIncarTargetPos.X - matEnt.pos.X) * 0.06f;
+				if(m_vecIncarTargetPosOffset.Y > 0.05f)
+					vec.Y += (m_vecIncarTargetPos.Y - matEnt.pos.Y) * 0.06f;
+				if(m_vecIncarTargetPosOffset.Z > 0.05f)
+					vec.Z += (m_vecIncarTargetPos.Z - matEnt.pos.Z) * 0.06f;
+				if(FloatOffset(vec.X, 0.0f) > 0.01f ||
+					FloatOffset(vec.Y, 0.0f) > 0.01f ||
+					FloatOffset(vec.Z, 0.0f) > 0.01f)
+						m_pCurrentVehicle->SetMoveSpeedVector(vec);
+			}
+		}
+	}
+	else
 	{
 		matEnt.pos.X = m_vecIncarTargetPos.X;
 		matEnt.pos.Y = m_vecIncarTargetPos.Y;
 		matEnt.pos.Z = m_vecIncarTargetPos.Z;
-
-		m_pCurrentVehicle->SetMatrix(matEnt);
-        m_pCurrentVehicle->SetMoveSpeedVector(m_vecIncarTargetSpeed);
-		return;
+		memcpy(&mat2, &matEnt, sizeof(MATRIX4X4));
+		m_pCurrentVehicle->SetMatrix(mat2);
 	}
-
-	m_pCurrentVehicle->GetMoveSpeedVector(&vec);
-
-	if( FloatOffset(m_vecIncarTargetPos.X,matEnt.pos.X) > 0.05f )
-		vec.X += (m_vecIncarTargetPos.X - matEnt.pos.X) * 0.05f;
-
-	if( FloatOffset(m_vecIncarTargetPos.Y,matEnt.pos.Y) > 0.05f )
-		vec.Y += (m_vecIncarTargetPos.Y - matEnt.pos.Y) * 0.05f;
-
-	if( FloatOffset(m_vecIncarTargetPos.Z,matEnt.pos.Z) > 0.05f )
-		vec.Z += (m_vecIncarTargetPos.Z - matEnt.pos.Z) * 0.05f;
-	
-	m_pCurrentVehicle->SetMoveSpeedVector(vec);
 }
 
-void CRemotePlayer::UpdateInCarMatrixAndSpeed(MATRIX4X4 mat, VECTOR vecMove)
+// 0.3.7
+void CRemotePlayer::UpdateInCarMatrixAndSpeed(MATRIX4X4 *mat, VECTOR *vecPos, VECTOR *vecMoveSpeed)
 {
-	// допилить
+    //RtQuatConvertFromMatrix(mat, &m_IncarQuaternion);
+    CQuaternion::ConvertMatrixToQuaternion(&m_IncarQuaternion, mat);
+    CQuaternion::Normalize(&m_IncarQuaternion);
 
-	MATRIX4X4 matEnt;
-	m_pCurrentVehicle->GetMatrix(&matEnt);
+	m_vecIncarTargetPos.X = vecPos->X;
+	m_vecIncarTargetPos.Y = vecPos->Y;
+	m_vecIncarTargetPos.Z = vecPos->Z;
 
-	CPlayerPed *pPlayer = pGame->FindPlayerPed();
+	m_vecIncarTargetSpeed.X = vecMoveSpeed->X;
+	m_vecIncarTargetSpeed.Y = vecMoveSpeed->Y;
+	m_vecIncarTargetSpeed.Z = vecMoveSpeed->Z;
 
-	matEnt.right.X = mat.right.X;
-	matEnt.right.Y = mat.right.Y;
-	matEnt.right.Z = mat.right.Z;
-
-	matEnt.up.X = mat.up.X;
-	matEnt.up.Y = mat.up.Y;
-	matEnt.up.Z = mat.up.Z;
-
-	m_vecIncarTargetPos.X = mat.pos.X;
-	m_vecIncarTargetPos.Y = mat.pos.Y;
-	m_vecIncarTargetPos.Z = mat.pos.Z;
-
-	m_vecIncarTargetSpeed.X = vecMove.X;
-	m_vecIncarTargetSpeed.Y = vecMove.Y;
-	m_vecIncarTargetSpeed.Z = vecMove.Z;
-
-	m_pCurrentVehicle->SetMoveSpeedVector(vecMove);
-	m_pCurrentVehicle->SetMatrix(matEnt);
+	m_pCurrentVehicle->SetMoveSpeedVector(*vecMoveSpeed);
 }
 
 void CRemotePlayer::StoreOnFootFullSyncData(ONFOOT_SYNC_DATA *pofSync)

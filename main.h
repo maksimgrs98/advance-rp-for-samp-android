@@ -3,12 +3,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <algorithm>
 
 #include <sys/mman.h>
 #include <android/log.h>
-
-#include "util/util.h"
-#include "util/armhook.h"
 
 #define MAX_PLAYER_NAME			24
 #define CSCANNER_DISTANCE		200.0f
@@ -46,6 +44,10 @@
 #include "gui/gui.h"
 
 #include "chatwindow.h"
+
+#include "util/util.h"
+#include "util/quaternion.h"
+#include "util/armhook.h"
 
 #define LOGI(...)  __android_log_print(ANDROID_LOG_INFO, "AXL", __VA_ARGS__)
 #define VERSION "SA:MP 0.3.7-5b"

@@ -18,5 +18,7 @@ uint8_t FindPlayerNumFromPedPtr(uint32_t dwPedPtr);
 float DegToRad(float fDegrees);
 float FloatOffset(float f1, float f2);
 
-void ConvertMatrixToQuaternion(PQUATERNION q, PMATRIX4X4 m);
-void ConvertQuaternionToMatrix(PMATRIX4X4 m, PQUATERNION q);
+//void ConvertMatrixToQuaternion(PQUATERNION q, PMATRIX4X4 m);
+//void ConvertQuaternionToMatrix(PMATRIX4X4 m, PQUATERNION q);
+
+//void RtQuatConvertFromMatrix(PMATRIX4X4 m, PQUATERNION q);

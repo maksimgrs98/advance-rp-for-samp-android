@@ -1,5 +1,4 @@
 #include "main.h"
-#include <algorithm>
 
 uint32_t dwPlayerPedPtrs[PLAYER_PED_SLOTS];
 
@@ -100,48 +99,16 @@ float FloatOffset(float f1, float f2)
 	else return (f2 - f1);
 }
 
-void ConvertMatrixToQuaternion(PQUATERNION q, PMATRIX4X4 m)
+void RtQuatConvertFromMatrix(PMATRIX4X4 m, PQUATERNION q)
 {
-											//m00		//m11		//m22
-	q->W = sqrt( std::max( (float)0, 1.0f + m->right.X + m->up.Y + m->at.Z ) ) * 0.5f;
-    q->X = sqrt( std::max( (float)0, 1.0f + m->right.X - m->up.Y - m->at.Z ) ) * 0.5f;
-    q->Y = sqrt( std::max( (float)0, 1.0f - m->right.X + m->up.Y - m->at.Z ) ) * 0.5f;
-    q->Z = sqrt( std::max( (float)0, 1.0f - m->right.X - m->up.Y + m->at.Z ) ) * 0.5f;
+	float rtQuat[4];
 
-    q->X = static_cast < float > ( copysign( q->X, m->at.Y - m->up.Z ) );
-    q->Y = static_cast < float > ( copysign( q->Y, m->right.Z - m->at.X ) );
-    q->Z = static_cast < float > ( copysign( q->Z, m->up.X - m->right.Y ) );
-}
+	void (*RtQuatConvertFromMatrix)(float *q, PMATRIX4X4 m);
+	*(void **)(&RtQuatConvertFromMatrix) = (void*)(g_libGTASA+0x1DE0DC+1);
+    (*RtQuatConvertFromMatrix)(rtQuat, m);
 
-void ConvertQuaternionToMatrix(PMATRIX4X4 m, PQUATERNION q)
-{     
-	/*
-	a1 = q.w   a5 = right.x   a8 = up.x    a11 = at.x
-	a2 = q.x   a6 = right.y   a9 = up.y    a12 = at.y
-	a3 = q.y   a7 = right.z   a10 = up.z   a13 = at.z
-	a4 = q.z
-	*/
-
-	float sqw = q->W*q->W; // v13 = a1 * a1;
-    float sqx = q->X*q->X; // v14 = a2 * a2;
-    float sqy = q->Y*q->Y; // v15 = a3 * a3;
-    float sqz = q->Z*q->Z; // v16 = a4 * a4;
-
-    m->right.X = ( sqx - sqy - sqz + sqw); 	// a5 = v14 - v15 - v16 + v13;
-    m->up.Y = (-sqx + sqy - sqz + sqw);		// a9 = v15 - v14 - v16 + v13;
-    m->at.Z = (-sqx - sqy + sqz + sqw);		// a13 = v16 - (v15 + v14) + v13;
-    
-    float tmp1 = q->X*q->Y;					// v17 = a2 * a3;
-    float tmp2 = q->Z*q->W;					// v18 = a1 * a4;
-    m->up.X = 2.0 * (tmp1 + tmp2);			// a8 = v18 + v17 + v18 + v17;
-    m->right.Y = 2.0 * (tmp1 - tmp2);		// a6 = v17 - v18 + v17 - v18;
-    
-    tmp1 = q->X*q->Z;						// v20 = a2 * a4;
-    tmp2 = q->Y*q->W;						// v21 = a1 * a3;
-    m->at.X = 2.0 * (tmp1 - tmp2);			// a11 = v20 - v21 + v20 - v21;
-    m->right.Z 	= 2.0 * (tmp1 + tmp2);		// a7 = v21 + v20 + v21 + v20;
-    tmp1 = q->Y*q->Z;						// v22 = a3 * a4;
-    tmp2 = q->X*q->W;						// v23 = a1 * a2;
-    m->at.Y = 2.0 * (tmp1 + tmp2);			// a12 = v23 + v22 + v23 + v22;
-    m->up.Z = 2.0 * (tmp1 - tmp2);			// a10 = v22 - v23 + v22 - v23;
+    q->W = rtQuat[3];
+    q->X = rtQuat[0];
+    q->Y = rtQuat[1];
+    q->Z = rtQuat[2];
 }

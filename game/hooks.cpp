@@ -1,6 +1,14 @@
 #include "main.h"
 #include "util.h"
 #include "keystuff.h"
+#include <iostream>
+
+// OpenGL stuff
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
+#include "gui/imgui/imgui.h"
+#include "gui/imgui_impl_gles2.h"
 
 extern CChatWindow *pChatWindow;
 extern CNetGame *pNetGame;
@@ -324,13 +332,63 @@ uint16_t CPad__GetAccelerate_hook(uintptr_t thiz)
 uint32_t  AllVehicles_ProcessControl_Hook(uint32_t thiz)
 {
 	VEHICLE_TYPE *pVehicle = (VEHICLE_TYPE*)thiz;
-
 	byteCurDriver = FindPlayerNumFromPedPtr(pVehicle->pDriver);
+
+	uintptr_t vtbl = ((*(uintptr_t*)thiz) - g_libGTASA);
+	uintptr_t call_addr = 0;
+	switch(vtbl)
+	{
+		// CAutomobile
+		case 0x5CC9F0:
+			call_addr = 0x4E314C;
+			//LOGI("vtbl CAutomobile");
+			break;
+		// CBoat
+		case 0x5CCD48:
+			call_addr = 0x4F7408;
+			//LOGI("vtbl CBoat");
+			break;
+		// CBike
+		case 0x5CCB18:
+			call_addr = 0x4EE790;
+			//LOGI("vtbl CBike");
+			break;
+		// CPlane
+		case 0x5CD0B0:
+			call_addr = 0x5031E8;
+			//LOGI("vtbl CPlane");
+			break;
+		// CHeli
+		case 0x5CCE60:
+			call_addr = 0x4FE62C;
+			//LOGI("vtbl CHeli");
+			break;
+		// CBmx
+		case 0x5CCC30:
+			call_addr = 0x4F3CE8;
+			//LOGI("vtbl CBmx");
+			break;
+		// CMonsterTruck
+		case 0x5CCF88:
+			call_addr = 0x500A34;
+			//LOGI("vtbl CMonsterTruck");
+			break;
+		// CQuadBike
+		case 0x5CD1D8:
+			call_addr = 0x505840;
+			//LOGI("vtbl CQuadBike");
+			break;
+		// CTrain
+		case 0x5CD428:
+			call_addr = 0x50AB24;
+			//LOGI("vtbl CTrain");
+			break;
+	}
 
 	void (*CAEVehicleAudioEntity_Service)(uintptr_t CAEVehicleAudioEntity);
     *(void **)(&CAEVehicleAudioEntity_Service) = (void*)(g_libGTASA+0x364B64+1);
 
-	if(pVehicle->pDriver && pVehicle->pDriver != GamePool_FindPlayerPed())
+	if(pVehicle->pDriver && (pVehicle->pDriver->dwPedType == 0) && (pVehicle->pDriver != GamePool_FindPlayerPed()))
 	{
 		// REMOTE PLAYER
 
@@ -355,9 +413,9 @@ uint32_t  AllVehicles_ProcessControl_Hook(uint32_t thiz)
 		(*CAEVehicleAudioEntity_Service)(thiz+0x138);
 	}
 
-	uint32_t (*CAutomobile_ProcessControl)(VEHICLE_TYPE *pVehicle);
-    *(void **)(&CAutomobile_ProcessControl) = (void*)(g_libGTASA+0x4E314C+1);
-    uint32_t dwRet = (*CAutomobile_ProcessControl)(pVehicle);
+	uint32_t (*ProcessControl)(VEHICLE_TYPE *pVehicle);
+    *(void **)(&ProcessControl) = (void*)(g_libGTASA+call_addr+1);
+    uint32_t dwRet = (*ProcessControl)(pVehicle);
 
     return dwRet;
 }
@@ -372,10 +430,100 @@ uint32_t CRadar__DrawRadarGangOverlay_hook(uint8_t v1)
 	return 0;
 }
 
+/*
+viewport: 0, 0, 1280, 720
+
+*/
+
+static const GLfloat globVertexBufferData[] = {
+	0.0f,  0.5f, 0.0f,
+   -0.5f, -0.5f, 0.0f,
+    0.5f, -0.5f, 0.0f
+};
+
+const GLfloat color[] = { 0.0f, 0.6f, 1.0f, 1.0f } ;
+
+const char* vertexShaderCode = 
+	"attribute vec4 vPosition;\n"
+	"void main(){\n"
+	"gl_Position = vPosition;\n"
+	"}";
+
+const char* fragmentShaderCode = 
+	"precision mediump float;\n"
+	"uniform vec4 vColor;\n"
+	"void main(){\n"
+	"gl_FragColor = vColor;\n"
+	"}";
+
+int LoadShader(int type, const char* shaderCode)
+{
+	int shader = glCreateShader(type);
+	glShaderSource(shader, 1, &shaderCode, 0);
+	glCompileShader(shader);
+	return shader;
+}
+
+bool bInit = false;
+int ShaderProgram = 0;
+bool showAnotherWindow = false;
+
+uint32_t (*RQ_Command_rqSwapBuffers)(uint32_t r0);
+uint32_t RQ_Command_rqSwapBuffers_hook(uint32_t r0)
+{
+	if (!bInit)
+  	{
+  		ImGui_ImplGLES2_Init();
+
+  		bInit = true;
+  		//int vertexShader = LoadShader(GL_VERTEX_SHADER, vertexShaderCode);
+  		//int fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
+
+  		//ShaderProgram = glCreateProgram();
+  		//glAttachShader(ShaderProgram, vertexShader);
+  		//glAttachShader(ShaderProgram, fragmentShader);
+  		//glLinkProgram(ShaderProgram);
+  	}
+
+  	ImGui_ImplGLES2_NewFrame();
+
+  	ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
+    ImGui::Begin("Another Window", &showAnotherWindow);
+    ImGui::Text("Hello");
+    ImGui::End();
+
+    //glClearColor(imClearColor.x, imClearColor.y, imClearColor.z, imClearColor.w);
+    //glClear(GL_COLOR_BUFFER_BIT);
+
+    ImGui::Render();
+  	//glClearColor(0.8f, 0.0f, 0.0f, 1.0f);
+  	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//GLint last_program;
+	//glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
+
+  	//glUseProgram(ShaderProgram);
+  	//int PositionAttrib = glGetAttribLocation(ShaderProgram, "vPosition");
+  	//glEnableVertexAttribArray(PositionAttrib);
+  	//glVertexAttribPointer(PositionAttrib, 3, GL_FLOAT, false, 0, globVertexBufferData);
+
+  	//int colorUniform = glGetUniformLocation(ShaderProgram, "vColor");
+  	//glUniform4fv(colorUniform, 1, color);
+  	//glDrawArrays(GL_TRIANGLES, 0, 3);
+  	//glDisableVertexAttribArray(PositionAttrib);
+
+  	//glUseProgram(last_program);
+
+	//LOGI("RQ_Command_rqSwapBuffers ");
+	return (*RQ_Command_rqSwapBuffers)(r0);
+}
+
 void InstallSpecialHooks()
 {
 	// NvFOpen redirect
 	SetUpHook(g_libGTASA+ADDR_NVFOPEN, NvFOpen_hook, (uintptr_t*)&NvFOpen);
+	//
+	//SetUpHook(g_libGTASA+0x1A2B5C, RQ_Command_rqSwapBuffers_hook, (uintptr_t*)&RQ_Command_rqSwapBuffers);
 }
 
 void InstallGameAndGraphicsLoopHooks()
@@ -401,4 +549,12 @@ void GameInstallHooks()
 	SetUpHook(g_libGTASA+0x3DE9A8, CRadar__DrawRadarGangOverlay_hook, (uintptr_t*)&CRadar__DrawRadarGangOverlay);
 
 	InstallMethodHook(g_libGTASA+0x5CCA1C, (uintptr_t)AllVehicles_ProcessControl_Hook); // CAutomobile::ProcessControl
+	InstallMethodHook(g_libGTASA+0x5CCD74, (uintptr_t)AllVehicles_ProcessControl_Hook); // CBoat::ProcessControl
+	InstallMethodHook(g_libGTASA+0x5CCB44, (uintptr_t)AllVehicles_ProcessControl_Hook); // CBike::ProcessControl
+	InstallMethodHook(g_libGTASA+0x5CD0DC, (uintptr_t)AllVehicles_ProcessControl_Hook); // CPlane::ProcessControl
+	InstallMethodHook(g_libGTASA+0x5CCE8C, (uintptr_t)AllVehicles_ProcessControl_Hook); // CHeli::ProcessControl
+	InstallMethodHook(g_libGTASA+0x5CCC5C, (uintptr_t)AllVehicles_ProcessControl_Hook); // CBmx::ProcessControl
+	InstallMethodHook(g_libGTASA+0x5CCFB4, (uintptr_t)AllVehicles_ProcessControl_Hook); // CMonsterTruck::ProcessControl
+	InstallMethodHook(g_libGTASA+0x5CD204, (uintptr_t)AllVehicles_ProcessControl_Hook); // CQuadBike::ProcessControl
+	InstallMethodHook(g_libGTASA+0x5CD454, (uintptr_t)AllVehicles_ProcessControl_Hook); // CTrain::ProcessControl
 }

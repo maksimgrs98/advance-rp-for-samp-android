@@ -123,7 +123,7 @@ void CLocalPlayer::SendOnFootFullSyncData()
 	ofSync.vecPos.Z = matPlayer.pos.Z;
 
 	// vrem
-	ConvertMatrixToQuaternion(&q, &matPlayer);
+	CQuaternion::ConvertMatrixToQuaternion(&q, &matPlayer);
 	ofSync.Quat.X = q.X;
 	ofSync.Quat.Y = q.Y;
 	ofSync.Quat.Z = q.Z;
@@ -187,7 +187,7 @@ void CLocalPlayer::SendInCarFullSyncData()
 
 		pGameVehicle->GetMatrix(&matPlayer);
 		pGameVehicle->GetMoveSpeedVector(&vecMoveSpeed);
-		ConvertMatrixToQuaternion(&q, &matPlayer);
+		CQuaternion::ConvertMatrixToQuaternion(&q, &matPlayer);
 
 		icSync.Quat.W = q.W;
 		icSync.Quat.X = q.X;
