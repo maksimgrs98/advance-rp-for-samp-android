@@ -526,6 +526,16 @@ float CRemotePlayer::GetDistanceFromLocalPlayer()
 	}
 }
 
+uint32_t CRemotePlayer::GetPlayerColorAsRGBA()
+{
+	return TranslateColorCodeToRGBA(m_PlayerID);
+}
+
+uint32_t CRemotePlayer::GetPlayerColorAsARGB()
+{
+	return (TranslateColorCodeToRGBA(m_PlayerID) >> 8) | 0xFF000000;	
+}
+
 void CRemotePlayer::EnterVehicle(VEHICLEID VehicleID, bool bPassenger)
 {
 	CVehiclePool *pVehiclePool = pNetGame->GetVehiclePool();

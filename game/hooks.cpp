@@ -518,6 +518,14 @@ uint32_t RQ_Command_rqSwapBuffers_hook(uint32_t r0)
 	return (*RQ_Command_rqSwapBuffers)(r0);
 }
 
+uint32_t (*CRadar__GetRadarTraceColor)(uint32_t color, uint8_t bright, uint8_t friendly);
+uint32_t CRadar__GetRadarTraceColor_hook(uint32_t color, uint8_t bright, uint8_t friendly)
+{
+	//LOGI("CRadar__GetRadarTraceColor");
+
+	return TranslateColorCodeToRGBA(color);
+}
+
 void InstallSpecialHooks()
 {
 	// NvFOpen redirect
@@ -547,6 +555,7 @@ void GameInstallHooks()
 
 	SetUpHook(g_libGTASA+0x45A280, CPed__ProcessControl_hook, (uintptr_t*)&CPed__ProcessControl);
 	SetUpHook(g_libGTASA+0x3DE9A8, CRadar__DrawRadarGangOverlay_hook, (uintptr_t*)&CRadar__DrawRadarGangOverlay);
+	SetUpHook(g_libGTASA+0x3DBA88, CRadar__GetRadarTraceColor_hook, (uintptr_t*)&CRadar__GetRadarTraceColor);
 
 	InstallMethodHook(g_libGTASA+0x5CCA1C, (uintptr_t)AllVehicles_ProcessControl_Hook); // CAutomobile::ProcessControl
 	InstallMethodHook(g_libGTASA+0x5CCD74, (uintptr_t)AllVehicles_ProcessControl_Hook); // CBoat::ProcessControl

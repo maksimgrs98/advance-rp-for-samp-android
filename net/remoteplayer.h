@@ -58,6 +58,9 @@ public:
 
 	float GetDistanceFromLocalPlayer();
 
+	uint32_t GetPlayerColorAsRGBA();
+	uint32_t GetPlayerColorAsARGB();
+
 	float GetReportedHealth() { return m_fReportedHealth; };
 
 	void EnterVehicle(VEHICLEID VehicleID, bool bPassenger);
