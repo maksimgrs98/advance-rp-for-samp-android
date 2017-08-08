@@ -1,6 +1,7 @@
 #include "main.h"
 #include "game.h"
 #include "keystuff.h"
+#include "util.h"
 
 void ApplyPreGamePatches();
 void ApplyInGamePatches();
@@ -71,6 +72,8 @@ void CGame::InitGame()
 	szGameTextMessage = (char*)malloc(256);
 
 	GameKeyStatesInit();
+
+	GameResetRadarColors();
 	
 	ApplyPreGamePatches();
 }

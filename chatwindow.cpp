@@ -24,6 +24,7 @@ void CChatWindow::Draw()
 	float x = 220.0f;
 	float y = 25.0f;
 	int i = 0;
+	int len = 0;
 
 	for(int z = 5; z > 0; z--)
 	{
@@ -32,6 +33,19 @@ void CChatWindow::Draw()
 
 		switch(m_ChatWindowEntries[i].eType)
 		{
+			case CHAT_TYPE_CHAT:
+				len = strlen(m_ChatWindowEntries[i].szNick);
+
+				if (len) {
+					RenderText(m_ChatWindowEntries[i].szNick, x, y, m_ChatWindowEntries[i].uNickColor);
+					x += 10 + CFont::GetStringWidth(m_ChatWindowEntries[i].szNick, 0, 0);
+				}
+
+				RenderText(m_ChatWindowEntries[i].szMessage, x, y, m_ChatWindowEntries[i].uTextColor);
+				x = 220.0f;
+
+				break;
+			case CHAT_TYPE_INFO:
 			case CHAT_TYPE_DEBUG:
 				RenderText(m_ChatWindowEntries[i].szMessage, x, y, m_ChatWindowEntries[i].uTextColor);
 				break;
@@ -65,6 +79,23 @@ void CChatWindow::AddDebugMessage(char *szFormat, ...)
 	AddToChatWindowBuffer(CHAT_TYPE_DEBUG, tmp_buf, 0, m_uChatDebugColor, 0);
 }
 
+void CChatWindow::AddClientMessage(uint32_t uColor, char* szStr)
+{
+	uColor = (uColor >> 8) | 0xFF000000; // convert to ARGB
+
+	FilterInvalidChars(szStr);
+	AddToChatWindowBuffer(CHAT_TYPE_INFO,szStr,0,uColor,0);
+}
+
+void CChatWindow::AddChatMessage(char *szNick, uint32_t uNickColor, char *szMessage)
+{
+	FilterInvalidChars(szMessage);
+
+	if(strlen(szMessage) > MAX_MESSAGE_LENGTH) return;
+
+	AddToChatWindowBuffer(CHAT_TYPE_CHAT,szMessage,szNick,m_uChatTextColor,uNickColor);
+}
+
 void CChatWindow::FilterInvalidChars(char* szString)
 {
 	while(*szString) 
@@ -89,8 +120,16 @@ void CChatWindow::AddToChatWindowBuffer(eChatMessageType eType,
 
 	if(szNick)
 	{
-		strcpy(m_ChatWindowEntries[m_iCount].szNick, szNick);
+		int len = strlen(szNick);
+		char* temp = (char*)malloc(len+2);
+		strcpy(temp, szNick);
+		strcat(temp, ":");
+		CFont::AsciiToGxtChar(temp, m_ChatWindowEntries[m_iCount].szNick);
+		free(temp);
+		/*strcpy(m_ChatWindowEntries[m_iCount].szNick, szNick);
 		strcat(m_ChatWindowEntries[m_iCount].szNick, ":");
+		CFont::AsciiToGxtChar(m_ChatWindowEntries[m_iCount].szNick, m_ChatWindowEntries[m_iCount].szNick);*/
+
 	}
 	else
 		m_ChatWindowEntries[m_iCount].szNick[0] = '\0';

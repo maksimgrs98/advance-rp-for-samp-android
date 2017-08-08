@@ -375,6 +375,21 @@ void CLocalPlayer::SendEnterVehicleNotification(VEHICLEID VehicleID, bool bPasse
 	*/
 }
 
+void CLocalPlayer::SetPlayerColor(uint32_t dwColor)
+{
+	SetRadarColor(pNetGame->GetPlayerPool()->GetLocalPlayerID(),dwColor);
+}
+
+uint32_t CLocalPlayer::GetPlayerColorAsRGBA()
+{
+	return TranslateColorCodeToRGBA(pNetGame->GetPlayerPool()->GetLocalPlayerID());
+}
+
+uint32_t CLocalPlayer::GetPlayerColorAsARGB()
+{
+	return (TranslateColorCodeToRGBA(pNetGame->GetPlayerPool()->GetLocalPlayerID()) >> 8) | 0xFF000000;
+}
+
 void CLocalPlayer::HandleClassSelectionOutcome()
 {
 	// допилить

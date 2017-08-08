@@ -33,6 +33,10 @@ public:
 
 	void HandleVehicleEntryExit();
 
+	void Say(unsigned char * szText);
+	void Privmsg(char* szText);
+	void TeamPrivmsg(char* szText);
+
 	void SetID(PLAYERID playerId);
 	PLAYERID GetID();
 	CPlayerPed *GetPlayerPed();
@@ -57,6 +61,10 @@ public:
 	void ResetAllSyncAttributes();
 
 	float GetDistanceFromLocalPlayer();
+
+	void SetPlayerColor(uint32_t dwColor);
+	uint32_t GetPlayerColorAsRGBA();
+	uint32_t GetPlayerColorAsARGB();
 
 	float GetReportedHealth() { return m_fReportedHealth; };
 

@@ -3,6 +3,7 @@
 
 extern CGame 		*pGame;
 extern CNetGame		*pNetGame;
+extern CChatWindow *pChatWindow;
 
 CRemotePlayer::CRemotePlayer()
 {
@@ -432,6 +433,7 @@ bool CRemotePlayer::Spawn(uint8_t byteTeam, int iSkin, VECTOR *vecPos, float fRo
 
 	if(pPlayer)
 	{
+		if (dwColor != 0) SetPlayerColor(dwColor);
 		/*if(pNetGame->m_bShowPlayerMarkers)*/
 		 pPlayer->ShowMarker(m_PlayerID);
 
@@ -515,6 +517,26 @@ uint8_t CRemotePlayer::GetState()
 	return m_byteState;
 }
 
+void CRemotePlayer::Say(unsigned char *szText)
+{
+	char * szPlayerName = pNetGame->GetPlayerPool()->GetPlayerName(m_PlayerID);
+	pChatWindow->AddChatMessage(szPlayerName,GetPlayerColorAsARGB(),(char*)szText);
+}
+
+void CRemotePlayer::Privmsg(char *szText)
+{
+	char szStr[256];
+	sprintf(szStr, "PM from %s(%d): %s", pNetGame->GetPlayerPool()->GetPlayerName(m_PlayerID), m_PlayerID, szText);
+	pChatWindow->AddClientMessage(0xFFDC181A, szStr);
+}
+
+void CRemotePlayer::TeamPrivmsg(char *szText)
+{
+	char szStr[256];
+	sprintf(szStr, "Team PM from %s(%d): %s", pNetGame->GetPlayerPool()->GetPlayerName(m_PlayerID), m_PlayerID, szText);
+	pChatWindow->AddClientMessage(0xFFDC181A, szStr);
+}
+
 float CRemotePlayer::GetDistanceFromLocalPlayer()
 {
 	if(!m_pPlayerPed) return 10000.0f; // very far away
@@ -524,6 +546,21 @@ float CRemotePlayer::GetDistanceFromLocalPlayer()
 	} else {
 		return m_pPlayerPed->GetDistanceFromLocalPlayerPed();
 	}
+}
+
+void CRemotePlayer::SetPlayerColor(uint32_t dwColor)
+{
+	SetRadarColor(m_PlayerID,dwColor);
+}
+
+uint32_t CRemotePlayer::GetPlayerColorAsRGBA()
+{
+	return TranslateColorCodeToRGBA(m_PlayerID);
+}
+
+uint32_t CRemotePlayer::GetPlayerColorAsARGB()
+{
+	return (TranslateColorCodeToRGBA(m_PlayerID) >> 8) | 0xFF000000;
 }
 
 void CRemotePlayer::EnterVehicle(VEHICLEID VehicleID, bool bPassenger)

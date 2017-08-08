@@ -52,6 +52,10 @@
 #define LOGI(...)  __android_log_print(ANDROID_LOG_INFO, "AXL", __VA_ARGS__)
 #define VERSION "SA:MP 0.3.7-5b"
 
+#ifndef PAGESIZE
+#define PAGESIZE PAGE_SIZE
+#endif
+
 extern uintptr_t g_libGTASA;
 
 uint32_t GetTickCount();

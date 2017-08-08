@@ -1,4 +1,5 @@
 #include "main.h"
+#include "../game/util.h"
 
 extern CGame *pGame;
 extern CNetGame *pNetGame;
@@ -79,6 +80,8 @@ void CNetGame::ShutdownForGameModeRestart()
 	ResetVehiclePool();
 
 	pGame->EnableZoneNames(false);
+
+	GameResetRadarColors();
 }
 
 void CNetGame::Process()
