@@ -165,6 +165,24 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		return (uintptr_t)st;
 	}
 
+	/*
+	if(!strcmp(v2, "Textures/Fonts/RussianFont.met"))
+	{
+		LOGI("Loading RussianFont.met");
+		sprintf(path, "%sSAMP/font/samp.met", storage);
+		st[1] = (uint32_t)fopen(path, "r");
+		return (uintptr_t)st;
+	}
+
+	if(!strcmp(v2, "Textures/Fonts/RussianFont.png"))
+	{
+		LOGI("Loading RussianFont.png");
+		sprintf(path, "%sSAMP/font/samp.png", storage);
+		st[1] = (uint32_t)fopen(path, "rb");
+		return (uintptr_t)st;
+	}
+	*/
+
 	return NvFOpen(v1, v2, v3, v4);
 }
 
