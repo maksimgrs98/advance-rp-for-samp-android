@@ -1,6 +1,7 @@
 #include "main.h"
 #include "jni.h"
 #include <pthread.h>
+#include <dlfcn.h>
 
 CGame		*pGame = 0;
 CNetGame	*pNetGame = 0;
@@ -70,13 +71,14 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
 	LOGI("libSAMP.so loaded! (" __DATE__ ")");
 	g_libGTASA = findLibrary("libGTASA.so");
+
 	if(!g_libGTASA)
 	{
 		LOGI("libGTASA.so address not found.");
 		return 0;
 	}
 	LOGI("libGTASA.so imagebase address 0x%X", g_libGTASA);
-
+	
 	InitHookStuff();
 
 	pthread_t thread;

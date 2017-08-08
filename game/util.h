@@ -20,6 +20,7 @@ float FloatOffset(float f1, float f2);
 
 void GameResetRadarColors();
 uint32_t TranslateColorCodeToRGBA(uint32_t iCode);
+void SetRadarColor(int nIndex, uint32_t dwColor);
 
 //void ConvertMatrixToQuaternion(PQUATERNION q, PMATRIX4X4 m);
 //void ConvertQuaternionToMatrix(PMATRIX4X4 m, PQUATERNION q);

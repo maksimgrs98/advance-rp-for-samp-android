@@ -167,7 +167,9 @@ void CGame::DisplayGameText(char *szStr, int iTime, int iType)
 	LOGI("CGame::DisplayGameText (%s)", szStr);
 
 	ScriptCommand(&text_clear_all);
-	strcpy(szGameTextMessage, szStr);
+	//strcpy(szGameTextMessage, szStr);
+	memset(szGameTextMessage, 0, sizeof(szGameTextMessage));
+	CFont::AsciiToGxtChar(szStr, szGameTextMessage);
 
 	uint32_t (*CMessages__AddBigMessage)(char *text, int time, int type);
     *(void **) (&CMessages__AddBigMessage) = (void*)(g_libGTASA+0x4D18C0+1);

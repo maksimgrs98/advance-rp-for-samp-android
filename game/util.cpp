@@ -630,6 +630,11 @@ uint32_t TranslateColorCodeToRGBA(uint32_t iCode)
 		return 0x999999FF;
 }
 
+void SetRadarColor(int nIndex, uint32_t dwColor)
+{
+	if(nIndex < sizeof(dwUseHudColors))
+		dwUseHudColors[nIndex] = dwColor;
+}
 
 PED_TYPE * GamePool_Ped_GetAt(int iID)
 {

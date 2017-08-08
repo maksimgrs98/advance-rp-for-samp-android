@@ -526,6 +526,12 @@ uint32_t CRadar__GetRadarTraceColor_hook(uint32_t color, uint8_t bright, uint8_t
 	return TranslateColorCodeToRGBA(color);
 }
 
+void (*CTaskComplexEnterCarAsDriver)(uint32_t thiz, uint32_t pVehicle);
+void CTaskComplexEnterCarAsDriver_hook(uint32_t thiz, uint32_t pVehicle)
+{
+	
+}
+
 void InstallSpecialHooks()
 {
 	// NvFOpen redirect

@@ -58,4 +58,7 @@ void ApplyInGamePatches()
     WriteMemory(g_libGTASA+0x35D2F0, "\x4F\xF0\x00\x00\xF7\x46", 6);
     // CAEVehicleAudioEntity::TurnOnRadioForVehicle
     WriteMemory(g_libGTASA+0x35BD4C, "\x4F\xF0\x00\x00\xF7\x46", 6);
+
+    // radar draw blips
+    //WriteMemory(g_libGTASA+0x3DD97C, "\x4F\xF0\x00\x00\xF7\x46", 6); 
 }

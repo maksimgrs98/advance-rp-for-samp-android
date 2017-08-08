@@ -375,6 +375,11 @@ void CLocalPlayer::SendEnterVehicleNotification(VEHICLEID VehicleID, bool bPasse
 	*/
 }
 
+void CLocalPlayer::SetPlayerColor(uint32_t dwColor)
+{
+	SetRadarColor(pNetGame->GetPlayerPool()->GetLocalPlayerID(), dwColor);	
+}
+
 void CLocalPlayer::HandleClassSelectionOutcome()
 {
 	// допилить

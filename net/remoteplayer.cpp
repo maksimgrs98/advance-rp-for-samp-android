@@ -432,6 +432,7 @@ bool CRemotePlayer::Spawn(uint8_t byteTeam, int iSkin, VECTOR *vecPos, float fRo
 
 	if(pPlayer)
 	{
+		if(dwColor!=0) SetPlayerColor(dwColor);
 		/*if(pNetGame->m_bShowPlayerMarkers)*/
 		 pPlayer->ShowMarker(m_PlayerID);
 
@@ -526,6 +527,12 @@ float CRemotePlayer::GetDistanceFromLocalPlayer()
 	}
 }
 
+void CRemotePlayer::SetPlayerColor(uint32_t dwColor)
+{
+	SetRadarColor(m_PlayerID, dwColor);	
+}
+
+
 uint32_t CRemotePlayer::GetPlayerColorAsRGBA()
 {
 	return TranslateColorCodeToRGBA(m_PlayerID);
@@ -591,7 +598,7 @@ void CRemotePlayer::StateChange(uint8_t byteNewState, uint8_t byteOldState)
 			{
 				pLocalPlayerPed->GetMatrix(&mat);
 				pLocalPlayerPed->RemoveFromVehicleAndPutAt(mat.pos.X,mat.pos.Y,mat.pos.Z + 1.0f);
-				//pGame->DisplayGameText("~r~Car Jacked~w~!",1000,5);
+				pGame->DisplayGameText("~r~Car Jacked~w~!",1000,5);
 			}
 		}
 	}

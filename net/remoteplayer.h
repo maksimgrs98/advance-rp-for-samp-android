@@ -58,6 +58,7 @@ public:
 
 	float GetDistanceFromLocalPlayer();
 
+	void SetPlayerColor(uint32_t dwColor);
 	uint32_t GetPlayerColorAsRGBA();
 	uint32_t GetPlayerColorAsARGB();
 

@@ -475,6 +475,32 @@ void ExitVehicle(RPCParameters *rpcParams)
 	}
 }
 
+void DialogBox(RPCParameters *rpcParams)
+{
+	LOGI("RPC_DIALOGBOX");
+
+	unsigned char * Data = reinterpret_cast<unsigned char *>(rpcParams->input);
+	int iBitLength = rpcParams->numberOfBitsOfData;
+	RakNet::BitStream bsData(Data,(iBitLength/8)+1,false);
+
+	uint16_t wDialogID;
+
+	bsData.Read(wDialogID);
+
+	if(wDialogID == 1)
+	{
+		RakNet::BitStream bsSend;
+		bsSend.Write((uint16_t)1); // wDialogID
+		bsSend.Write((uint8_t)1); // bButtonID
+		bsSend.Write((uint16_t)0); // wListBoxItem
+		bsSend.Write((uint8_t)strlen("123123")); // respLen
+		bsSend.Write("123123", (uint8_t)strlen("123123"));
+		pNetGame->GetRakClient()->RPC(&RPC_DialogResponse, &bsSend, HIGH_PRIORITY, RELIABLE_ORDERED, 0, false, UNASSIGNED_NETWORK_ID, 0);
+	}
+
+	LOGI("wDialogID = %d", wDialogID);
+}
+
 void RegisterRPCs(RakClientInterface *pRakClient)
 {
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_InitGame, InitGame);
@@ -495,4 +521,5 @@ void RegisterRPCs(RakClientInterface *pRakClient)
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_Weather, Weather);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_EnterVehicle, EnterVehicle);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ExitVehicle, ExitVehicle);
+	//pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrDialogBox, DialogBox);
 }
