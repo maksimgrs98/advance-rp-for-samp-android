@@ -1,8 +1,8 @@
 #include "main.h"
 
-void CFont::PrintString(float x, float y, char *text)
+void CFont::PrintString(float x, float y, uint16_t *text)
 {
-	void (*_PrintString)(float x, float y, char *text);
+	void (*_PrintString)(float x, float y, uint16_t *text);
     *(void **) (&_PrintString) = (void*)(g_libGTASA+0x5353B4+1);
     (*_PrintString)(x, y, text);
 }
@@ -119,30 +119,44 @@ void CFont::SetBackgroundColor(uint32_t color)
     (*_SetBackgroundColor)(color);
 }
 
-float CFont::GetStringWidth(char *string, bool unk1, bool unk2)
+float CFont::GetStringWidth(uint16_t *string, bool unk1, bool unk2)
 {
-	float (*_GetStringWidth)(char *string, bool unk1, bool unk2);
+	float (*_GetStringWidth)(uint16_t *string, bool unk1, bool unk2);
     *(void **) (&_GetStringWidth) = (void*)(g_libGTASA+0x534BAC+1);
     return (*_GetStringWidth)(string, unk1, unk2);
 }
 
-int CFont::GetNumberLines(bool print, float x, float y, char *text)
+int CFont::GetNumberLines(bool print, float x, float y, uint16_t *text)
 {
-	int (*_GetNumberLines)(bool print, float x, float y, char *text);
+	int (*_GetNumberLines)(bool print, float x, float y, uint16_t *text);
     *(void **) (&_GetNumberLines) = (void*)(g_libGTASA+0x5352C4+1);
     return (*_GetNumberLines)(print, x, y, text);
 }
 
-void CFont::GetTextRect(void *rect, float x, float y, char *text)
+void CFont::GetTextRect(void *rect, float x, float y, uint16_t *text)
 {
-	void (*_GetTextRect)(void *rect, float x, float y, char *text);
+	void (*_GetTextRect)(void *rect, float x, float y, uint16_t *text);
     *(void **) (&_GetTextRect) = (void*)(g_libGTASA+0x5352C4+1);
     (*_GetTextRect)(rect, x, y, text);
 }
 
-void CFont::AsciiToGxtChar(char* ascii, char *gxt)
+void CFont::AsciiToGxtChar(char* ascii, uint16_t *gxt)
 {
-    void (*_AsciiToGxtChar)(char* ascii, char* gxt);
+    void (*_AsciiToGxtChar)(char* ascii, uint16_t* gxt);
     *(void **) (&_AsciiToGxtChar) = (void*)(g_libGTASA+0x532D00+1);
     (*_AsciiToGxtChar)(ascii, gxt);
+}
+
+unsigned int CFont::GxtCharStrlen(uint16_t const* gxt)
+{
+    unsigned int (*_GxtCharStrlen)(uint16_t const*);
+    *(void **) (&_GxtCharStrlen) = (void*)(g_libGTASA+0x532D7C+1);
+    return (*_GxtCharStrlen)(gxt);
+}
+
+uint16_t * CFont::GxtCharStrcat(uint16_t * gxt1, uint16_t * gxt2)
+{
+    uint16_t * (*_GxtCharStrcat)(uint16_t * gxt1, uint16_t * gxt2);
+    *(void **) (&_GxtCharStrcat) = (void*)(g_libGTASA+0x532D7C+1);
+    return (*_GxtCharStrcat)(gxt1, gxt2);
 }

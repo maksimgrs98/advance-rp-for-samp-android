@@ -12,7 +12,7 @@ class CFont
 {
 public:
 	
-	static void PrintString(float x, float y, char *text);
+	static void PrintString(float x, float y, uint16_t *text);
 	static void SetScale(float scale);
 	static void SetSlant(float slant);
 	static void SetColor(uint32_t color);
@@ -29,8 +29,11 @@ public:
 	static void SetOrientation(uint32_t  value);
 	static void SetBackground(bool enable, bool includeWrap);
 	static void SetBackgroundColor(uint32_t color);
-	static float GetStringWidth(char *string, bool unk1, bool unk2);
-	static int GetNumberLines(bool print, float x, float y, char *text);
-	static void GetTextRect(void *rect, float x, float y, char *text);
-	static void AsciiToGxtChar(char* ascii, char *gxt);
+	static float GetStringWidth(uint16_t *string, bool unk1, bool unk2);
+	static int GetNumberLines(bool print, float x, float y, uint16_t *text);
+	static void GetTextRect(void *rect, float x, float y, uint16_t *text);
+	static void AsciiToGxtChar(char* ascii, uint16_t *gxt);
+	static unsigned int GxtCharStrlen(uint16_t const* gxt);
+	static uint16_t * CFont::GxtCharStrcat(uint16_t * gxt1, uint16_t * gxt2);
 };
+

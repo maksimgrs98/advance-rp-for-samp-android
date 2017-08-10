@@ -6,7 +6,7 @@ extern CGame *pGame;
 void DrawPlayerTags()
 {
 	MATRIX4X4 matPlayer, matLocal;
-	char buf[50];
+	uint16_t buf[50];
 
 	if(pNetGame)
 	{
