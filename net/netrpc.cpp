@@ -165,6 +165,18 @@ void Chat(RPCParameters *rpcParams)
 	bsData.Read((char*)szText, byteTextLen);
 
 	szText[byteTextLen] = '\0';
+
+	CPlayerPool* pPlayerPool = pNetGame->GetPlayerPool();
+	if (playerId  == pPlayerPool->GetLocalPlayerID())
+	{
+		pChatWindow->AddChatMessage(pPlayerPool->GetLocalPlayerName(),
+			pPlayerPool->GetLocalPlayer()->GetPlayerColorAsARGB(), (char*)szText);
+	} else {
+		CRemotePlayer *pRemotePlayer = pNetGame->GetPlayerPool()->GetAt(playerId);
+		if(pRemotePlayer) {
+			pRemotePlayer->Say((unsigned char *)szText);
+		}
+	}
 }
 
 void ClientMessage(RPCParameters *rpcParams)
@@ -183,9 +195,8 @@ void ClientMessage(RPCParameters *rpcParams)
 	bsData.Read(szMsg, dwStrLen);
 	szMsg[dwStrLen] = 0;
 
-	char test[256];
-	strcpy(test, szMsg);
-	//pChatWindow->AddDebugMessage(szMsg);
+	pChatWindow->AddClientMessage(dwColor, szMsg);
+
 	free(szMsg);
 }
 

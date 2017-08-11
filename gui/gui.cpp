@@ -6,7 +6,7 @@ extern CGame *pGame;
 void DrawPlayerTags()
 {
 	MATRIX4X4 matPlayer, matLocal;
-	char buf[50];
+	uint16_t buf[50];
 
 	if(pNetGame)
 	{
@@ -41,7 +41,7 @@ void DrawPlayerTags()
 
 						CFont::SetOrientation(1);
 						CFont::SetProportional(1);
-						CFont::SetFontStyle(1);
+						CFont::SetFontStyle(FONT_SUBTITLES);
 						uint32_t uColor = Player->GetPlayerColorAsRGBA();
 
 						// RGBA to ABGR
@@ -54,7 +54,7 @@ void DrawPlayerTags()
 						//LOGI("color = 0x%X", uColor);
 						// ---- 
 
-						CFont::SetColor(&uColor);
+						CFont::SetColor((uint8_t*)&uColor);
 						CFont::SetScale(1.0f);
 						CFont::AsciiToGxtChar(pPlayerPool->GetPlayerName(x), buf);
 

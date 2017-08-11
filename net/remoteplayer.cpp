@@ -3,6 +3,7 @@
 
 extern CGame 		*pGame;
 extern CNetGame		*pNetGame;
+extern CChatWindow *pChatWindow;
 
 CRemotePlayer::CRemotePlayer()
 {
@@ -514,6 +515,26 @@ void CRemotePlayer::Deactivate()
 uint8_t CRemotePlayer::GetState()
 {
 	return m_byteState;
+}
+
+void CRemotePlayer::Say(unsigned char *szText)
+{
+	char * szPlayerName = pNetGame->GetPlayerPool()->GetPlayerName(m_PlayerID);
+	pChatWindow->AddChatMessage(szPlayerName,GetPlayerColorAsARGB(),(char*)szText);
+}
+
+void CRemotePlayer::Privmsg(char *szText)
+{
+	char szStr[256];
+	sprintf(szStr, "PM from %s(%d): %s", pNetGame->GetPlayerPool()->GetPlayerName(m_PlayerID), m_PlayerID, szText);
+	pChatWindow->AddClientMessage(0xFFDC181A, szStr);
+}
+
+void CRemotePlayer::TeamPrivmsg(char *szText)
+{
+	char szStr[256];
+	sprintf(szStr, "Team PM from %s(%d): %s", pNetGame->GetPlayerPool()->GetPlayerName(m_PlayerID), m_PlayerID, szText);
+	pChatWindow->AddClientMessage(0xFFDC181A, szStr);
 }
 
 float CRemotePlayer::GetDistanceFromLocalPlayer()

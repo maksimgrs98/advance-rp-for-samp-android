@@ -33,6 +33,10 @@ public:
 
 	void HandleVehicleEntryExit();
 
+	void Say(unsigned char * szText);
+	void Privmsg(char* szText);
+	void TeamPrivmsg(char* szText);
+
 	void SetID(PLAYERID playerId);
 	PLAYERID GetID();
 	CPlayerPed *GetPlayerPed();

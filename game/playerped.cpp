@@ -83,8 +83,8 @@ void CPlayerPed::SetInitialState()
 {
 	LOGI("CPlayerPed::SetInitialState");
 	uint32_t (*CPlayerPed__SetInitialState)(PED_TYPE*, bool);
-	*(void **) (&CPlayerPed__SetInitialState) = (void*)g_libGTASA+0x458D1C+1;
-	return (CPlayerPed__SetInitialState)(m_pPed, 0);
+	*(void **) (&CPlayerPed__SetInitialState) = (void*)(g_libGTASA+0x458D1C+1);
+	(CPlayerPed__SetInitialState)(m_pPed, 0);
 }
 
 void CPlayerPed::SetOFKeys(uint16_t wKeys, uint16_t lrAnalog, uint16_t udAnalog)
@@ -555,16 +555,17 @@ void CPlayerPed::SetModelIndex(unsigned int uiModel)
 	if(m_pPed)
 	{
 		// CClothes__RebuildPlayer
-		UnFuck(g_libGTASA+0x3F1030);
-		memcpy((void*)(g_libGTASA+0x3F1030), "\x4F\xF0\x00\x00\xF7\x46", 6);
+		//UnFuck(g_libGTASA+0x3F1030);
+		//memcpy((void*)(g_libGTASA+0x3F1030), "\x4F\xF0\x00\x00\xF7\x46", 6);
+		WriteMemory(g_libGTASA+0x3F1030, "\x70\x47", 2);
 
 		CEntity::SetModelIndex(uiModel);
 
 		// reset the Ped Audio Attributes
 		LOGI("CAEPedSpeechAudioEntity__Initialize");
 		void (*CAEPedSpeechAudioEntity__Initialize)(uintptr_t pedSAInterface, uintptr_t entity);
-		*(void **) (&CAEPedSpeechAudioEntity__Initialize) = (void*)g_libGTASA+0x34B2A8+1;
-		(CAEPedSpeechAudioEntity__Initialize)(m_pPed+660, m_pPed);
+		*(void **) (&CAEPedSpeechAudioEntity__Initialize) = (void*)(g_libGTASA+0x34B2A8+1);
+		(CAEPedSpeechAudioEntity__Initialize)((uintptr_t)((char*)m_pPed+660), (uintptr_t)m_pPed);
 	}
 }
 

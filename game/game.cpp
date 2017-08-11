@@ -2,6 +2,7 @@
 #include "game.h"
 #include "util.h"
 #include "keystuff.h"
+#include "util.h"
 
 void ApplyPreGamePatches();
 void ApplyInGamePatches();
@@ -9,7 +10,6 @@ void GameInstallHooks();
 void InstallSpecialHooks();
 void InitScripting();
 
-char *szGameTextMessage;
 uint8_t byteUsedPlayerSlots[PLAYER_PED_SLOTS];
 
 CGame::CGame()
@@ -69,8 +69,6 @@ void CGame::InitGame()
 {
 	InstallSpecialHooks();
 
-	szGameTextMessage = (char*)malloc(256);
-
 	GameKeyStatesInit();
 
 	GameResetRadarColors();
@@ -127,9 +125,9 @@ void CGame::ToggleThePassingOfTime(bool bOnOff)
 	uint8_t ret[] = { 0xF7, 0x46 };
 
 	if(bOnOff)
-		WriteMemory(g_libGTASA+0x38C154, org, 2);
+		WriteMemory(g_libGTASA+0x38C154, (const char*)org, 2);
 	else
-		WriteMemory(g_libGTASA+0x38C154, ret, 2);
+		WriteMemory(g_libGTASA+0x38C154, (const char*)ret, 2);
 }
 
 void CGame::SetWorldWeather(int iWeatherID)
@@ -165,13 +163,14 @@ void CGame::ToggleRadar(bool iToggle)
 void CGame::DisplayGameText(char *szStr, int iTime, int iType)
 {
 	LOGI("CGame::DisplayGameText (%s)", szStr);
+	uint16_t szGameTextMessage[256];
 
 	ScriptCommand(&text_clear_all);
 	//strcpy(szGameTextMessage, szStr);
 	memset(szGameTextMessage, 0, sizeof(szGameTextMessage));
 	CFont::AsciiToGxtChar(szStr, szGameTextMessage);
 
-	uint32_t (*CMessages__AddBigMessage)(char *text, int time, int type);
+	uint32_t (*CMessages__AddBigMessage)(uint16_t *text, int time, int type);
     *(void **) (&CMessages__AddBigMessage) = (void*)(g_libGTASA+0x4D18C0+1);
     (*CMessages__AddBigMessage)(szGameTextMessage, iTime, iType);	
 }
@@ -288,7 +287,7 @@ void CGame::EnableClock(bool bClock)
 	if(bClock)
 	{
 		ToggleThePassingOfTime(1);
-		WriteMemory(g_libGTASA+0x599504, byteClockData, 10);
+		WriteMemory(g_libGTASA+0x599504, (const char*)byteClockData, 10);
 	}
 	else
 	{

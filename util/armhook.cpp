@@ -25,7 +25,7 @@ void NOP(uintptr_t dest, size_t size)
     cacheflush(dest, dest+size, 0);
 }
 
-void WriteMemory(uintptr_t dest, uintptr_t src, size_t size)
+void WriteMemory(uintptr_t dest, const char* src, size_t size)
 {
     mprotect((void*)(dest & 0xFFFFF000), PAGESIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
     memcpy((void*)dest, (void*)src, size);
@@ -52,7 +52,7 @@ void InitHookStuff()
 void JMPCode(uintptr_t func, uintptr_t addr)
 {
     uint32_t code = ((addr-func-4) >> 12) & 0x7FF | 0xF000 | ((((addr-func-4) >> 1) & 0x7FF | 0xB800) << 16);
-    WriteMemory(func, (uintptr_t)&code, 4);
+    WriteMemory(func, (const char*)&code, 4);
 }
 
 void WriteHookProc(uintptr_t addr, uintptr_t func)
@@ -60,7 +60,7 @@ void WriteHookProc(uintptr_t addr, uintptr_t func)
     char code[16];
     memcpy(code, HOOK_PROC, 16);
     *(uint32_t*)&code[12] = (func | 1);
-    WriteMemory(addr, (uintptr_t)code, 16);
+    WriteMemory(addr, (const char*)code, 16);
 }
 
 void SetUpHook(uintptr_t addr, uintptr_t func, uintptr_t *orig)

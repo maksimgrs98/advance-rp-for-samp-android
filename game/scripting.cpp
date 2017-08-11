@@ -8,7 +8,7 @@ int ExecuteScriptBuf()
 {
 	gst->dwScriptIP = (uintptr_t)ScriptBuf;
 	uint32_t (*ProcessOneCommand)(GAME_SCRIPT_THREAD*);
-	*(void **) (&ProcessOneCommand) = (void*)g_libGTASA+ADDR_PROCESSONECOMMAND+1;
+	*(void **) (&ProcessOneCommand) = (void*)(g_libGTASA+ADDR_PROCESSONECOMMAND+1);
 	(*ProcessOneCommand)(gst);
 
 	return 1;

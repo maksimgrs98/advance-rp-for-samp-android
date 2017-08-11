@@ -620,9 +620,15 @@ void GameResetRadarColors()
 uint32_t TranslateColorCodeToRGBA(uint32_t iCode)
 {
 	// Special internal colors
+	if(iCode == 200) return 0x888888FF;
+	if(iCode == 201) return 0xAA0000FF;
+	if(iCode == 202) return 0xE2C063FF;
 	if(iCode == 500) return 0x89A4C440; // 0.3a
 	if(iCode == 501) return 0xAA0000FF;
 	if(iCode == 502) return 0xE2C063FF;
+	if(iCode == 2000) return 0x88888844; // 0.3a
+	if(iCode == 2001) return 0xAA0000FF;
+	if(iCode == 2002) return 0xE2C063FF;
 
 	if(iCode < sizeof(dwUseHudColors))
 		return dwUseHudColors[iCode];
@@ -639,7 +645,7 @@ void SetRadarColor(int nIndex, uint32_t dwColor)
 PED_TYPE * GamePool_Ped_GetAt(int iID)
 {
 	PED_TYPE* (*GetPoolPed)(int iID);
-	*(void **) (&GetPoolPed) = (void*)g_libGTASA+ADDR_GETPOOLPED+1;
+	*(void **) (&GetPoolPed) = (void*)(g_libGTASA+ADDR_GETPOOLPED+1);
 	return (*GetPoolPed)(iID);
 }
 
@@ -657,7 +663,7 @@ int GamePool_Ped_GetIndex(PED_TYPE *pActor)
 VEHICLE_TYPE *GamePool_Vehicle_GetAt(int iID)
 {
 	VEHICLE_TYPE* (*GetPoolVehicle)(int iID);
-	*(void **) (&GetPoolVehicle) = (void*)g_libGTASA+ADDR_GETPOOLVEHICLE+1;
+	*(void **) (&GetPoolVehicle) = (void*)(g_libGTASA+ADDR_GETPOOLVEHICLE+1);
 	return (GetPoolVehicle)(iID);
 }
 
@@ -667,7 +673,7 @@ uint32_t GamePool_Vehicle_GetIndex(VEHICLE_TYPE *pVehicle)
 	uint32_t dwID = 0;
 
 	uint32_t (*GetPoolVehicleRef)(VEHICLE_TYPE *pVehicle);
-    *(void **)(&GetPoolVehicleRef) = (void*)g_libGTASA+ADDR_GETPOOLVEHICLEREF+1;
+    *(void **)(&GetPoolVehicleRef) = (void*)(g_libGTASA+ADDR_GETPOOLVEHICLEREF+1);
     dwID = (*GetPoolVehicleRef)(pVehicle);
 
 	return dwID;

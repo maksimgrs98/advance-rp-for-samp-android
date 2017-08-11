@@ -1,4 +1,5 @@
 #pragma once
+void SetRadarColor(uint8_t nIndex, uint32_t dwColor);
 
 PED_TYPE * GamePool_Ped_GetAt(int iID);
 int GamePool_Ped_GetIndex(PED_TYPE *pActor);
@@ -14,6 +15,8 @@ ENTITY_TYPE *GamePool_Object_GetAt(int iID);
 
 void SetPlayerPedPtrRecord(uint8_t bytePlayer, uint32_t dwPedPtr);
 uint8_t FindPlayerNumFromPedPtr(uint32_t dwPedPtr);
+
+void GameResetRadarColors();
 
 float DegToRad(float fDegrees);
 float FloatOffset(float f1, float f2);
