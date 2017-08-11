@@ -80,6 +80,7 @@ CVehicle::~CVehicle()
 			{
 				LOGI("~CVehicle: RemoveModel(%d)", nModelIndex);
 				pGame->RemoveModel(nModelIndex);
+				LOGI("true");
 			}
 		}
 	}

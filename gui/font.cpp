@@ -21,9 +21,9 @@ void CFont::SetSlant(float slant)
     (*_SetSlant)(slant);
 }
 
-void CFont::SetColor(uint32_t color)
+void CFont::SetColor(uint8_t* color)
 {
-	void (*_SetColor)(uint32_t color);
+	void (*_SetColor)(uint8_t* color);
     *(void **) (&_SetColor) = (void*)(g_libGTASA+0x5336F4+1);
     (*_SetColor)(color);
 }

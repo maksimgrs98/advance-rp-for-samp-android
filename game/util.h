@@ -16,12 +16,14 @@ ENTITY_TYPE *GamePool_Object_GetAt(int iID);
 void SetPlayerPedPtrRecord(uint8_t bytePlayer, uint32_t dwPedPtr);
 uint8_t FindPlayerNumFromPedPtr(uint32_t dwPedPtr);
 
-uint32_t TranslateColorCodeToRGBA(int iCode);
-
 void GameResetRadarColors();
 
 float DegToRad(float fDegrees);
 float FloatOffset(float f1, float f2);
+
+void GameResetRadarColors();
+uint32_t TranslateColorCodeToRGBA(uint32_t iCode);
+void SetRadarColor(int nIndex, uint32_t dwColor);
 
 //void ConvertMatrixToQuaternion(PQUATERNION q, PMATRIX4X4 m);
 //void ConvertQuaternionToMatrix(PMATRIX4X4 m, PQUATERNION q);

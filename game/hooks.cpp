@@ -165,6 +165,22 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		return (uintptr_t)st;
 	}
 
+	if(!strcmp(v2, "Textures/Fonts/RussianFont.met"))
+	{
+		LOGI("Loading RussianFont.met");
+		sprintf(path, "%sSAMP/font/samp.met", storage);
+		st[1] = (uint32_t)fopen(path, "r");
+		return (uintptr_t)st;
+	}
+
+	if(!strcmp(v2, "Textures/Fonts/RussianFont.png"))
+	{
+		LOGI("Loading RussianFont.png");
+		sprintf(path, "%sSAMP/font/samp.png", storage);
+		st[1] = (uint32_t)fopen(path, "rb");
+		return (uintptr_t)st;
+	}
+
 	return NvFOpen(v1, v2, v3, v4);
 }
 
@@ -183,13 +199,14 @@ uint32_t CPed__ProcessControl_hook(uintptr_t thiz)
 		NOP(g_libGTASA+0x439B7A, 2);
 
 		// CWidget::setEnabled
-		WriteMemory(g_libGTASA+0x274178, "\x4F\xF0\x00\x00\xF7\x46", 6);
+		WriteMemory(g_libGTASA+0x274178, "\x70\x47", 2);
+
 
 		// call original
 		(*CPed__ProcessControl)(thiz);
 		// restore
 		WriteMemory(g_libGTASA+0x439B7A, "\xFA\xF7\x1D\xF8", 4);
-		WriteMemory(g_libGTASA+0x274178, "\x80\xB4\x00\xAF\x80\xF8", 6);
+		WriteMemory(g_libGTASA+0x274178, "\x80\xB4", 2);
 	}
 	else
 	{
@@ -332,7 +349,7 @@ uint16_t CPad__GetAccelerate_hook(uintptr_t thiz)
 uint32_t  AllVehicles_ProcessControl_Hook(uint32_t thiz)
 {
 	VEHICLE_TYPE *pVehicle = (VEHICLE_TYPE*)thiz;
-	byteCurDriver = FindPlayerNumFromPedPtr(pVehicle->pDriver);
+	byteCurDriver = FindPlayerNumFromPedPtr((uint32_t)pVehicle->pDriver);
 
 	uintptr_t vtbl = ((*(uintptr_t*)thiz) - g_libGTASA);
 	uintptr_t call_addr = 0;
@@ -394,7 +411,8 @@ uint32_t  AllVehicles_ProcessControl_Hook(uint32_t thiz)
 
 		// CWidget::setEnabled
 		// ret 0
-		WriteMemory(g_libGTASA+0x274178, "\x4F\xF0\x00\x00\xF7\x46", 6);
+		WriteMemory(g_libGTASA+0x274178, "\x70\x47", 2);
+
 
 		// radio/engine
 		// допилить
@@ -403,7 +421,7 @@ uint32_t  AllVehicles_ProcessControl_Hook(uint32_t thiz)
     	pVehicle->pDriver->dwPedType = 0;
 
     	// restore
-		WriteMemory(g_libGTASA+0x274178, "\x80\xB4\x00\xAF\x80\xF8", 6);
+		WriteMemory(g_libGTASA+0x274178, "\x80\xB4", 2);
 	}
 	else
 	{
@@ -518,35 +536,50 @@ uint32_t RQ_Command_rqSwapBuffers_hook(uint32_t r0)
 	return (*RQ_Command_rqSwapBuffers)(r0);
 }
 
+uint32_t (*CRadar__GetRadarTraceColor)(uint32_t color, uint8_t bright, uint8_t friendly);
+uint32_t CRadar__GetRadarTraceColor_hook(uint32_t color, uint8_t bright, uint8_t friendly)
+{
+	//LOGI("CRadar__GetRadarTraceColor");
+
+	return TranslateColorCodeToRGBA(color);
+}
+
+void (*CTaskComplexEnterCarAsDriver)(uint32_t thiz, uint32_t pVehicle);
+void CTaskComplexEnterCarAsDriver_hook(uint32_t thiz, uint32_t pVehicle)
+{
+	
+}
+
 void InstallSpecialHooks()
 {
 	// NvFOpen redirect
-	SetUpHook(g_libGTASA+ADDR_NVFOPEN, NvFOpen_hook, (uintptr_t*)&NvFOpen);
+	SetUpHook(g_libGTASA+ADDR_NVFOPEN, (uintptr_t)NvFOpen_hook, (uintptr_t*)&NvFOpen);
 	//
 	//SetUpHook(g_libGTASA+0x1A2B5C, RQ_Command_rqSwapBuffers_hook, (uintptr_t*)&RQ_Command_rqSwapBuffers);
 }
 
 void InstallGameAndGraphicsLoopHooks()
 {
-	SetUpHook(g_libGTASA+ADDR_RENDER2DSTUFF, Render2dStuff_hook, (uintptr_t*)&Render2dStuff);
+	SetUpHook(g_libGTASA+ADDR_RENDER2DSTUFF, (uintptr_t)Render2dStuff_hook, (uintptr_t*)&Render2dStuff);
 
-	SetUpHook(g_libGTASA+0x39D08C, CPad__GetPedWalkLeftRight_hook, (uintptr_t*)&CPad__GetPedWalkLeftRight);
-	SetUpHook(g_libGTASA+0x39D110, CPad__GetPedWalkUpDown_hook, (uintptr_t*)&CPad__GetPedWalkUpDown);
-	SetUpHook(g_libGTASA+0x39E7B0, CPad__DuckJustDown_hook, (uintptr_t*)&CPad__DuckJustDown);
-	SetUpHook(g_libGTASA+0x39E9B8, CPad__JumpJustDown_hook, (uintptr_t*)&CPad__JumpJustDown);
-	SetUpHook(g_libGTASA+0x39EAA4, CPad__GetSprint_hook, (uintptr_t*)&CPad__GetSprint);
-	SetUpHook(g_libGTASA+0x39DD9C, CPad__MeleeAttackJustDown_hook, (uintptr_t*)&CPad__MeleeAttackJustDown);
-	SetUpHook(g_libGTASA+0x39C9E4, CPad__GetSteeringLeftRight_hook, (uintptr_t*)&CPad__GetSteeringLeftRight);
-	SetUpHook(g_libGTASA+0x39DB7C, CPad__GetAccelerate_hook, (uintptr_t*)&CPad__GetAccelerate);
-	SetUpHook(g_libGTASA+0x39D938, CPad__GetBrake_hook, (uintptr_t*)&CPad__GetBrake);
+	SetUpHook(g_libGTASA+0x39D08C, (uintptr_t)CPad__GetPedWalkLeftRight_hook, (uintptr_t*)&CPad__GetPedWalkLeftRight);
+	SetUpHook(g_libGTASA+0x39D110, (uintptr_t)CPad__GetPedWalkUpDown_hook, (uintptr_t*)&CPad__GetPedWalkUpDown);
+	SetUpHook(g_libGTASA+0x39E7B0, (uintptr_t)CPad__DuckJustDown_hook, (uintptr_t*)&CPad__DuckJustDown);
+	SetUpHook(g_libGTASA+0x39E9B8, (uintptr_t)CPad__JumpJustDown_hook, (uintptr_t*)&CPad__JumpJustDown);
+	SetUpHook(g_libGTASA+0x39EAA4, (uintptr_t)CPad__GetSprint_hook, (uintptr_t*)&CPad__GetSprint);
+	SetUpHook(g_libGTASA+0x39DD9C, (uintptr_t)CPad__MeleeAttackJustDown_hook, (uintptr_t*)&CPad__MeleeAttackJustDown);
+	SetUpHook(g_libGTASA+0x39C9E4, (uintptr_t)CPad__GetSteeringLeftRight_hook, (uintptr_t*)&CPad__GetSteeringLeftRight);
+	SetUpHook(g_libGTASA+0x39DB7C, (uintptr_t)CPad__GetAccelerate_hook, (uintptr_t*)&CPad__GetAccelerate);
+	SetUpHook(g_libGTASA+0x39D938, (uintptr_t)CPad__GetBrake_hook, (uintptr_t*)&CPad__GetBrake);
 }
 
 void GameInstallHooks()
 {
 	InstallGameAndGraphicsLoopHooks();
 
-	SetUpHook(g_libGTASA+0x45A280, CPed__ProcessControl_hook, (uintptr_t*)&CPed__ProcessControl);
-	SetUpHook(g_libGTASA+0x3DE9A8, CRadar__DrawRadarGangOverlay_hook, (uintptr_t*)&CRadar__DrawRadarGangOverlay);
+	SetUpHook(g_libGTASA+0x45A280, (uintptr_t)CPed__ProcessControl_hook, (uintptr_t*)&CPed__ProcessControl);
+	SetUpHook(g_libGTASA+0x3DE9A8, (uintptr_t)CRadar__DrawRadarGangOverlay_hook, (uintptr_t*)&CRadar__DrawRadarGangOverlay);
+	SetUpHook(g_libGTASA+0x3DBA88, (uintptr_t)CRadar__GetRadarTraceColor_hook, (uintptr_t*)&CRadar__GetRadarTraceColor);
 
 	InstallMethodHook(g_libGTASA+0x5CCA1C, (uintptr_t)AllVehicles_ProcessControl_Hook); // CAutomobile::ProcessControl
 	InstallMethodHook(g_libGTASA+0x5CCD74, (uintptr_t)AllVehicles_ProcessControl_Hook); // CBoat::ProcessControl

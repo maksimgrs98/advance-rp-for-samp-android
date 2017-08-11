@@ -143,7 +143,7 @@ void ScrDisplayGameText(RPCParameters *rpcParams)
 	bsData.Read(szMessage, iLength);
 	szMessage[iLength] = '\0';
 
-	//pGame->DisplayGameText(szMessage, iTime, iType);
+	pGame->DisplayGameText(szMessage, iTime, iType);
 }
 
 void ScrSetInterior(RPCParameters *rpcParams)
@@ -436,6 +436,31 @@ void ScrStopFlashGangZone(RPCParameters *rpcParams)
 	}
 }
 
+
+void ScrSetPlayerColor(RPCParameters *rpcParams)
+{
+	unsigned char * Data = reinterpret_cast<unsigned char *>(rpcParams->input);
+	int iBitLength = rpcParams->numberOfBitsOfData;
+
+
+	RakNet::BitStream bsData(Data,(iBitLength/8)+1,false);
+	CPlayerPool *pPlayerPool = pNetGame->GetPlayerPool();
+	PLAYERID playerId;
+	uint32_t dwColor;
+
+	bsData.Read(playerId);
+	bsData.Read(dwColor);
+
+	if(playerId == pPlayerPool->GetLocalPlayerID())
+	{
+		pPlayerPool->GetLocalPlayer()->SetPlayerColor(dwColor);
+	}
+	else
+	{
+		CRemotePlayer *pPlayer = pPlayerPool->GetAt(playerId);
+		if(pPlayer)	pPlayer->SetPlayerColor(dwColor);
+	}
+}
 void RegisterScriptRPCs(RakClientInterface *pRakClient)
 {
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetSpawnInfo, ScrSetSpawnInfo);
@@ -444,7 +469,7 @@ void RegisterScriptRPCs(RakClientInterface *pRakClient)
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetPlayerPosFindZ, ScrSetPlayerPosFindZ);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetPlayerHealth, ScrSetPlayerHealth);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrPutPlayerInVehicle, ScrPutPlayerInVehicle);
-	//pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrDisplayGameText, ScrDisplayGameText);
+	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrDisplayGameText, ScrDisplayGameText);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetInterior, ScrSetInterior);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetCameraPos, ScrSetCameraPos);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetCameraLookAt, ScrSetCameraLookAt);
@@ -463,4 +488,6 @@ void RegisterScriptRPCs(RakClientInterface *pRakClient)
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrRemoveGangZone, ScrRemoveGangZone);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrFlashGangZone, ScrFlashGangZone);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrStopFlashGangZone, ScrStopFlashGangZone);
+
+	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetPlayerColor, ScrSetPlayerColor);
 }

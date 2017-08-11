@@ -24,8 +24,8 @@ typedef struct _CHAT_WINDOW_ENTRY
 class CChatWindow
 {
 public:
-	CChatWindow::CChatWindow();
-	CChatWindow::~CChatWindow();
+	CChatWindow();
+	~CChatWindow();
 
 	void FilterInvalidChars(char* szString);
 	void AddToChatWindowBuffer(eChatMessageType eType, char* szString, char* szNick, uint32_t uTextColor, uint32_t uNickColor);

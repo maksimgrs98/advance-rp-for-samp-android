@@ -6,14 +6,14 @@ void ApplyPreGamePatches()
 {
 	PLAYERS_REALLOC = new char[404*MAX_PLAYERS];
 	UnFuck(g_libGTASA+0x5D021C);
-	*(uint32_t*)(g_libGTASA+0x5D021C) = PLAYERS_REALLOC;
+	*(char**)(g_libGTASA+0x5D021C) = PLAYERS_REALLOC;
 	LOGI("CWorld::Players new address 0x%X", PLAYERS_REALLOC);
 }
 
 void ApplyInGamePatches()
 {
 	// CPlayerPed__CPlayerPed task fix
-	WriteMemory(g_libGTASA+0x458ED1, "\xD0", 1);
+	WriteMemory(g_libGTASA+0x458ED1, "\xE0", 1);
 
 	// CPhysical destructor crash fix (CRealTimeShadowManager::ReturnRealTimeShadow)
 	UnFuck(g_libGTASA+0x3A0196);
@@ -28,7 +28,7 @@ void ApplyInGamePatches()
 	NOP(g_libGTASA+0x3D6FDC, 2);
 
 	// CTaskSimplePlayerOnFoot::PlayIdleAnimations 
-	WriteMemory(g_libGTASA+0x4BDB18, "\x4F\xF0\x00\x00\xF7\x46", 6);
+	WriteMemory(g_libGTASA+0x4BDB18, "\x70\x47", 2);
 
 	// interior peds
 	UnFuck(g_libGTASA+0x2C2C22);
@@ -53,9 +53,12 @@ void ApplyInGamePatches()
 
     // vehicle radio
     //CAEVehicleAudioEntity::PlayerAboutToExitVehicleAsDriver
-    WriteMemory(g_libGTASA+0x35BDE4, "\x4F\xF0\x00\x00\xF7\x46", 6);
+	WriteMemory(g_libGTASA+0x35BDE4, "\x70\x47", 2);
     // CAEVehicleAudioEntity::JustWreckedVehicle
-    WriteMemory(g_libGTASA+0x35D2F0, "\x4F\xF0\x00\x00\xF7\x46", 6);
+	WriteMemory(g_libGTASA+0x35D2F0, "\x70\x47", 2);
     // CAEVehicleAudioEntity::TurnOnRadioForVehicle
-    WriteMemory(g_libGTASA+0x35BD4C, "\x4F\xF0\x00\x00\xF7\x46", 6);
+	WriteMemory(g_libGTASA+0x35BD4C, "\x70\x47", 2);
+
+    // radar draw blips
+    //WriteMemory(g_libGTASA+0x3DD97C, "\x4F\xF0\x00\x00\xF7\x46", 6); 
 }
