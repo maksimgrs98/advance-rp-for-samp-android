@@ -433,37 +433,31 @@ void CNetGame::Packet_MarkerSync(Packet *p)
 	}
 }
 
+void gen_auth_key(char buf[260], char* auth_in);
 void CNetGame::Packet_AuthKey(Packet *pkt)
 {
-	char* auth_key;
-	bool found_key = false;
+	RakNet::BitStream bsAuth((unsigned char *)pkt->data, pkt->length, false);
 
-	for(int x = 0; x < 512; x++)
-	{
-		if(!strcmp(((char*)pkt->data + 2), AuthKeyTable[x][0]))
-		{
-			auth_key = AuthKeyTable[x][1];
-			found_key = true;
-		}
-	}
+	uint8_t byteAuthLen;
+	char szAuth[260];
 
-	if(found_key)
-	{
-		RakNet::BitStream bsKey;
-		uint8_t byteAuthKeyLen;
+	bsAuth.IgnoreBits(8);
+	bsAuth.Read(byteAuthLen);
+	bsAuth.Read(szAuth, byteAuthLen);
+	szAuth[byteAuthLen] = '\0';
 
-		byteAuthKeyLen = (uint8_t)strlen(auth_key);
-		
-		bsKey.Write((uint8_t)ID_AUTH_KEY);
-		bsKey.Write((uint8_t)byteAuthKeyLen);
-		bsKey.Write(auth_key, byteAuthKeyLen);
+	char szAuthKey[260];
+ 	gen_auth_key(szAuthKey, szAuth);
 
-		m_pRakClient->Send(&bsKey, SYSTEM_PRIORITY, RELIABLE, NULL);
-	}
-	else
-	{
-		LOGI("Unknown AUTH_IN! (%s)", ((char*)pkt->data + 2));
-	}
+ 	RakNet::BitStream bsKey;
+ 	uint8_t byteAuthKeyLen = (uint8_t)strlen(szAuthKey);
+ 	bsKey.Write((uint8_t)ID_AUTH_KEY);
+ 	bsKey.Write((uint8_t)byteAuthKeyLen);
+ 	bsKey.Write(szAuthKey, byteAuthKeyLen);
+
+ 	m_pRakClient->Send(&bsKey, SYSTEM_PRIORITY, RELIABLE, NULL);
+
+ 	//LOGI("[AUTH] %s -> %s", szAuth, szAuthKey);
 }
 
 void CNetGame::Packet_ConnectionSucceeded(Packet *pkt)

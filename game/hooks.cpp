@@ -7,9 +7,6 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-#include "gui/imgui/imgui.h"
-#include "gui/imgui_impl_gles2.h"
-
 extern CChatWindow *pChatWindow;
 extern CNetGame *pNetGame;
 extern CGame *pGame;
@@ -485,57 +482,14 @@ int LoadShader(int type, const char* shaderCode)
 	return shader;
 }
 
-bool bInit = false;
-int ShaderProgram = 0;
-bool showAnotherWindow = false;
-
+bool ogl_bInit = false;
 uint32_t (*RQ_Command_rqSwapBuffers)(uint32_t r0);
 uint32_t RQ_Command_rqSwapBuffers_hook(uint32_t r0)
 {
-	if (!bInit)
+	if (!ogl_bInit)
   	{
-  		ImGui_ImplGLES2_Init();
-
-  		bInit = true;
-  		//int vertexShader = LoadShader(GL_VERTEX_SHADER, vertexShaderCode);
-  		//int fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
-
-  		//ShaderProgram = glCreateProgram();
-  		//glAttachShader(ShaderProgram, vertexShader);
-  		//glAttachShader(ShaderProgram, fragmentShader);
-  		//glLinkProgram(ShaderProgram);
   	}
 
-  	ImGui_ImplGLES2_NewFrame();
-
-  	ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
-    ImGui::Begin("Another Window", &showAnotherWindow);
-    ImGui::Text("Hello");
-    ImGui::End();
-
-    //glClearColor(imClearColor.x, imClearColor.y, imClearColor.z, imClearColor.w);
-    //glClear(GL_COLOR_BUFFER_BIT);
-
-    ImGui::Render();
-  	//glClearColor(0.8f, 0.0f, 0.0f, 1.0f);
-  	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//GLint last_program;
-	//glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
-
-  	//glUseProgram(ShaderProgram);
-  	//int PositionAttrib = glGetAttribLocation(ShaderProgram, "vPosition");
-  	//glEnableVertexAttribArray(PositionAttrib);
-  	//glVertexAttribPointer(PositionAttrib, 3, GL_FLOAT, false, 0, globVertexBufferData);
-
-  	//int colorUniform = glGetUniformLocation(ShaderProgram, "vColor");
-  	//glUniform4fv(colorUniform, 1, color);
-  	//glDrawArrays(GL_TRIANGLES, 0, 3);
-  	//glDisableVertexAttribArray(PositionAttrib);
-
-  	//glUseProgram(last_program);
-
-	//LOGI("RQ_Command_rqSwapBuffers ");
 	return (*RQ_Command_rqSwapBuffers)(r0);
 }
 
