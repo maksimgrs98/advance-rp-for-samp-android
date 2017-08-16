@@ -23,6 +23,8 @@ CRemotePlayer::~CRemotePlayer()
 		delete m_pPlayerPed;
 		m_pPlayerPed = 0;
 	}
+
+	HideGlobalMarker(0);
 }
 
 void CRemotePlayer::Process()
@@ -51,6 +53,7 @@ void CRemotePlayer::Process()
 					UpdateOnfootTargetPosition();
 				//}
 
+				m_pCurrentVehicle = 0;
 				m_byteUpdateFromNetwork = UPDATE_TYPE_NONE;
 			}
 
@@ -61,7 +64,6 @@ void CRemotePlayer::Process()
 
 				// 0.3.7
 				CQuaternion::Normalize(&m_icSync.Quat);
-				//ConvertQuaternionToMatrix(&matVehicle, &m_icSync.Quat);
 				CQuaternion::ConvertQuaternionToMatrix(&matVehicle, &m_icSync.Quat);
 
 				matVehicle.pos.X = m_icSync.vecPos.X;
@@ -107,8 +109,9 @@ void CRemotePlayer::Process()
 				// test
 				m_pPlayerPed->SetMoveSpeedVector(m_ofSync.vecMoveSpeed);
 			}
-			else if(GetState() == PLAYER_STATE_DRIVER)
+			else if(GetState() == PLAYER_STATE_DRIVER && m_pPlayerPed->IsInVehicle())
 			{
+				if(!m_pCurrentVehicle) return;
 				UpdateVehicleRotation();
 				m_pPlayerPed->SetICKeys(m_icSync.wKeys, m_icSync.lrAnalog, m_icSync.udAnalog);
 			}
@@ -372,7 +375,7 @@ void CRemotePlayer::StoreOnFootFullSyncData(ONFOOT_SYNC_DATA *pofSync)
 {
 	if(GetTickCount() < m_dwWaitForEntryExitAnims) return;
 
-	//m_pCurrentVehicle = 0;
+	m_pCurrentVehicle = 0;
 	memcpy(&m_ofSync,pofSync,sizeof(ONFOOT_SYNC_DATA));
 	m_fReportedHealth = (float)pofSync->byteHealth;
 	m_fReportedArmour = (float)pofSync->byteArmour;
@@ -520,7 +523,7 @@ uint8_t CRemotePlayer::GetState()
 void CRemotePlayer::Say(unsigned char *szText)
 {
 	char * szPlayerName = pNetGame->GetPlayerPool()->GetPlayerName(m_PlayerID);
-	pChatWindow->AddChatMessage(szPlayerName,GetPlayerColorAsARGB(),(char*)szText);
+	pChatWindow->AddChatMessage(szPlayerName,GetPlayerColorAsRGBA(),(char*)szText);
 }
 
 void CRemotePlayer::Privmsg(char *szText)
@@ -541,7 +544,7 @@ float CRemotePlayer::GetDistanceFromLocalPlayer()
 {
 	if(!m_pPlayerPed) return 10000.0f; // very far away
 
-	if(GetState() == PLAYER_STATE_DRIVER && m_pCurrentVehicle) {
+	if(GetState() == PLAYER_STATE_DRIVER && m_pCurrentVehicle && m_pPlayerPed->IsInVehicle()) {
 		return m_pCurrentVehicle->GetDistanceFromLocalPlayerPed();
 	} else {
 		return m_pPlayerPed->GetDistanceFromLocalPlayerPed();
@@ -600,6 +603,39 @@ void CRemotePlayer::ExitVehicle()
 	}
 
 	m_dwWaitForEntryExitAnims = GetTickCount() + 500;
+}
+
+// sub_10011030
+void CRemotePlayer::SetupGlobalMarker(short x, short y, short z)
+{
+	m_bGlobalMarkerLoaded = 1;
+
+	if(m_dwGlobalMarker)
+	{
+		DisableMarker_037(m_dwGlobalMarker);
+		m_dwGlobalMarker = 0;
+	}
+
+	if(!m_pPlayerPed)
+	{		
+		m_dwGlobalMarker = pGame->CreateRadarMarkerIcon(0, (float)x, (float)y, (float)z, m_PlayerID);
+
+		m_sGlobalMarkerPos[0] = x;
+		m_sGlobalMarkerPos[1] = y;
+		m_sGlobalMarkerPos[2] = z;
+	}
+}
+
+// sub_10010FF0
+void CRemotePlayer::HideGlobalMarker(bool bHide)
+{
+	if(!bHide && m_dwGlobalMarker)
+	{
+		DisableMarker_037(m_dwGlobalMarker);
+		m_dwGlobalMarker = 0;
+	}
+
+	m_bGlobalMarkerLoaded = false;
 }
 
 // CALLBACK

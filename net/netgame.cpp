@@ -194,6 +194,11 @@ void CNetGame::UpdateNetwork()
 			case ID_PASSENGER_SYNC:
 			Packet_PassengerSync(pkt);
 			break;
+
+			// 0.3.7
+			case ID_MARKERS_SYNC:
+			Packet_MarkerSync(pkt);
+			break;
 		}
 
 		m_pRakClient->DeallocatePacket(pkt);
@@ -378,6 +383,53 @@ void CNetGame::Packet_PassengerSync(Packet *p)
 		pPlayer = m_pPlayerPool->GetAt(playerId);
 		if(pPlayer) 
 			pPlayer->StorePassengerFullSyncData(&psSync);
+	}
+}
+
+// 0.3.7
+void CNetGame::Packet_MarkerSync(Packet *p)
+{
+	RakNet::BitStream bsMarkerSync((unsigned char *)p->data, p->length, false);
+	int			iNumberOfPlayers = 0;
+	PLAYERID	playerId;
+	short		sPos[3];
+	bool		bIsPlayerActive;
+	uint8_t 	unk0 = 0;
+	CRemotePlayer *pPlayer;
+
+	bsMarkerSync.Read(unk0);
+	bsMarkerSync.Read(iNumberOfPlayers);
+
+	if(iNumberOfPlayers)
+	{
+		for(int i = 0; i < iNumberOfPlayers; i++)
+		{
+			bsMarkerSync.Read(playerId);
+			bsMarkerSync.ReadCompressed(bIsPlayerActive);
+
+			if(bIsPlayerActive)
+			{
+				bsMarkerSync.Read(sPos[0]); // x
+				bsMarkerSync.Read(sPos[1]); // y
+				bsMarkerSync.Read(sPos[2]); // z
+			}
+
+			if(playerId < MAX_PLAYERS && m_pPlayerPool->GetSlotState(playerId))
+			{
+				pPlayer = m_pPlayerPool->GetAt(playerId);
+				if(pPlayer)
+				{
+					if(bIsPlayerActive)
+						pPlayer->SetupGlobalMarker(sPos[0], sPos[1], sPos[2]);
+					else
+						pPlayer->HideGlobalMarker(0);
+				}
+			}
+
+			//LOGI("MARKER_SYNC(unk: %d | iNumberOfPlayers: %d)", unk0, iNumberOfPlayers);
+			//LOGI("MARKER_SYNC(playerId: %d | bIsPlayerActive: %d)", playerId, bIsPlayerActive);
+			//LOGI("MARKER_SYNC(posX: %d | posY: %d | posZ: %d)", sPos[0], sPos[1], sPos[2]);
+		}
 	}
 }
 

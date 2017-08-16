@@ -159,11 +159,10 @@ void CGame::ToggleRadar(bool iToggle)
 	*(uint8_t*)(g_libGTASA+0x8EF36B) = (uint8_t)!iToggle;
 }
 
-
+uint16_t szGameTextMessage[256];
 void CGame::DisplayGameText(char *szStr, int iTime, int iType)
 {
 	LOGI("CGame::DisplayGameText (%s)", szStr);
-	uint16_t szGameTextMessage[256];
 
 	ScriptCommand(&text_clear_all);
 	//strcpy(szGameTextMessage, szStr);

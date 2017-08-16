@@ -98,7 +98,7 @@ void CEntity::SetModelIndex(uint16_t uiModel)
 
 uint16_t CEntity::GetModelIndex()
 {
-	return m_pEntity->nModelIndex;
+		return m_pEntity->nModelIndex;
 }
 
 void CEntity::TeleportTo(float x, float y, float z)

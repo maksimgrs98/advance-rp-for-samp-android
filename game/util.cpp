@@ -721,6 +721,11 @@ uint8_t FindPlayerNumFromPedPtr(uint32_t dwPedPtr)
 	return 0;
 }
 
+void DisableMarker_037(uint32_t uid)
+{
+	ScriptCommand(&disable_marker, uid);
+}
+
 float DegToRad(float fDegrees)
 {
 	if (fDegrees > 360.0f || fDegrees < 0.0f) return 0.0f;

@@ -1,5 +1,7 @@
 #pragma once
 
+#define  RGBA_ABGR(color) color = ((color << 24) | ((color << 8) & 0x00FF0000) | ((color >> 8) & 0x0000FF00) | (color >> 24))
+
 enum eFontStyle : uint8_t
 {
 	FONT_GOTHIC,
@@ -13,6 +15,7 @@ class CFont
 public:
 	
 	static void PrintString(float x, float y, uint16_t *text);
+	static void RenderFontBuffer();
 	static void SetScale(float scale);
 	static void SetSlant(float slant);
 	static void SetColor(uint8_t *color);

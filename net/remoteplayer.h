@@ -71,6 +71,16 @@ public:
 	void EnterVehicle(VEHICLEID VehicleID, bool bPassenger);
 	void ExitVehicle();
 
+	// 0.3.7 sub_10011030
+	void SetupGlobalMarker(short x, short y, short z);
+	// 0.3.7 sub_10010FF0
+	void HideGlobalMarker(bool bHide);
+
+	// 0.3.7
+	bool 			m_bGlobalMarkerLoaded;
+	uint16_t		m_sGlobalMarkerPos[3];
+	uint32_t 		m_dwGlobalMarker;
+
 	CPlayerPed		*m_pPlayerPed;
 	CVehicle		*m_pCurrentVehicle;
 

@@ -16,6 +16,8 @@ ENTITY_TYPE *GamePool_Object_GetAt(int iID);
 void SetPlayerPedPtrRecord(uint8_t bytePlayer, uint32_t dwPedPtr);
 uint8_t FindPlayerNumFromPedPtr(uint32_t dwPedPtr);
 
+void DisableMarker_037(uint32_t uid);
+
 void GameResetRadarColors();
 
 float DegToRad(float fDegrees);

@@ -14,6 +14,9 @@ extern CChatWindow *pChatWindow;
 extern CNetGame *pNetGame;
 extern CGame *pGame;
 
+CVehicle 		*pVehicleClass;
+uintptr_t 		dwRetAddr = 0;
+
 void DoInitStuff();
 
 uint32_t dwCurPlayerActor = 0;
@@ -544,10 +547,101 @@ uint32_t CRadar__GetRadarTraceColor_hook(uint32_t color, uint8_t bright, uint8_t
 	return TranslateColorCodeToRGBA(color);
 }
 
-void (*CTaskComplexEnterCarAsDriver)(uint32_t thiz, uint32_t pVehicle);
-void CTaskComplexEnterCarAsDriver_hook(uint32_t thiz, uint32_t pVehicle)
+bool NotifyEnterVehicle(VEHICLE_TYPE *_pVehicle)
 {
-	
+	LOGI("NotifyEnterVehicle");
+
+	if(!pNetGame) return false;
+
+	CVehiclePool *pVehiclePool = pNetGame->GetVehiclePool();
+	VEHICLEID VehicleID = pVehiclePool->FindIDFromGtaPtr(_pVehicle);
+
+	if(VehicleID == INVALID_VEHICLE_ID) return false;
+	if(!pVehiclePool->GetSlotState(VehicleID)) return false;
+	pVehicleClass = pVehiclePool->GetAt(VehicleID);
+	//if(pVehicleClass->m_bDoorsLocked) return false;
+	if(pVehicleClass->m_pVehicle->entity.nModelIndex == TRAIN_PASSENGER) return false;
+
+	if(pVehicleClass->m_pVehicle->pDriver &&
+	   	pVehicleClass->m_pVehicle->pDriver->dwPedType != 0)
+		return false;
+
+	CLocalPlayer *pLocalPlayer = pNetGame->GetPlayerPool()->GetLocalPlayer();
+
+	//if(pLocalPlayer->GetPlayerPed() && pLocalPlayer->GetPlayerPed()->GetCurrentWeapon() == WEAPON_PARACHUTE)
+	//	pLocalPlayer->GetPlayerPed()->SetArmedWeapon(0);
+
+	pLocalPlayer->SendEnterVehicleNotification(VehicleID, false);
+
+	return true;
+}
+
+
+void (*CTaskComplexEnterCarAsDriver)();
+void __attribute__((naked)) CTaskComplexEnterCarAsDriver_hook(uint32_t thiz, VEHICLE_TYPE* pVehicle)
+{
+
+	/*__asm__ volatile("push {r0-r11, lr}\n\t"
+					"mov r2, lr\n\t"
+					"blx get_lib\n\t"
+					"add r0, #0x3A0000\n\t"
+					"add r0, #0xEE00\n\t"
+					"add r0, #0xF7\n\t"
+					"cmp r2, r0\n\t"
+					"bne 1f\n\t" // !=
+					"mov r0, r1\n\t"
+					"blx NotifyEnterVehicle\n\t" // call NotifyEnterVehicle
+					"1:\n\t"  // call orig
+					"pop {r0-r11, lr}\n\t");
+					*/
+
+	__asm__ volatile(
+		"push {r0-r11, lr}\n\t"
+		"mov r2, lr\n\t"
+		"mov %0, lr\n\t" : "=r" (dwRetAddr));
+	dwRetAddr-= g_libGTASA;
+	if(dwRetAddr == 0x3AEEF7)
+		NotifyEnterVehicle(pVehicle);
+
+
+	__asm__ volatile("pop {r0-r11, lr}\n\t");
+	return (*CTaskComplexEnterCarAsDriver)();
+}
+
+void (*CTaskComplexLeaveCar)(uintptr_t thiz, 
+	VEHICLE_TYPE *pVehicle, 
+	int iTargetDoor, 
+	int iDelayTime, 
+	bool bSensibleLeaveCar, 
+	bool bForceGetOut);
+
+bool bIgnoreNextExit = false;
+void CTaskComplexLeaveCar_hook(uintptr_t thiz, 
+	VEHICLE_TYPE *pVehicle,
+	int iTargetDoor,
+	int iDelayTime,
+	bool bSensibleLeaveCar,
+	bool bForceGetOut)
+{
+	__asm__ volatile ("mov %0, lr" : "=r" (dwRetAddr));
+	dwRetAddr -= g_libGTASA;
+
+	if (dwRetAddr == 0x3AE905 || dwRetAddr == 0x3AE9CF)
+	{
+		if(pNetGame)
+		{
+			 if (GamePool_FindPlayerPed()->pVehicle == (uint32_t)pVehicle)
+			 {
+			 	CVehiclePool *pVehiclePool = pNetGame->GetVehiclePool();
+			 	VEHICLEID VehicleID = pVehiclePool->FindIDFromGtaPtr((VEHICLE_TYPE *)GamePool_FindPlayerPed()->pVehicle);
+
+			 	CLocalPlayer *pLocalPlayer = pNetGame->GetPlayerPool()->GetLocalPlayer();
+			 	pLocalPlayer->SendExitVehicleNotification(VehicleID);
+			 }
+		}
+	}
+
+	(*CTaskComplexLeaveCar)(thiz, pVehicle, iTargetDoor, iDelayTime, bSensibleLeaveCar, bForceGetOut);
 }
 
 void InstallSpecialHooks()
@@ -571,6 +665,9 @@ void InstallGameAndGraphicsLoopHooks()
 	SetUpHook(g_libGTASA+0x39C9E4, (uintptr_t)CPad__GetSteeringLeftRight_hook, (uintptr_t*)&CPad__GetSteeringLeftRight);
 	SetUpHook(g_libGTASA+0x39DB7C, (uintptr_t)CPad__GetAccelerate_hook, (uintptr_t*)&CPad__GetAccelerate);
 	SetUpHook(g_libGTASA+0x39D938, (uintptr_t)CPad__GetBrake_hook, (uintptr_t*)&CPad__GetBrake);
+
+	SetUpHook(g_libGTASA+0x482E60, (uintptr_t)CTaskComplexEnterCarAsDriver_hook, (uintptr_t*)&CTaskComplexEnterCarAsDriver);
+	SetUpHook(g_libGTASA+0x4833CC, (uintptr_t)CTaskComplexLeaveCar_hook, (uintptr_t*)&CTaskComplexLeaveCar);
 }
 
 void GameInstallHooks()
