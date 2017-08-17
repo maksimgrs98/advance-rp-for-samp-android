@@ -1,5 +1,7 @@
 #pragma once
 
+#define RGBA_TO_ABGR(uColor) ((uColor << 24) | ((uColor << 8) & 0x00FF0000) | ((uColor >> 8) & 0x0000FF00) | (uColor >> 24))
+
 enum eFontStyle : uint8_t
 {
 	FONT_GOTHIC,

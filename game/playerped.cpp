@@ -47,6 +47,7 @@ CPlayerPed::CPlayerPed(uint8_t bytePlayerNumber, int iSkin, float fX, float fY, 
 
 	SetModelIndex(iSkin);
 	SetTargetRotation(fRotation);
+	memset(&GcsRemotePlayerKeys[m_bytePlayerNumber],0,sizeof(GTA_CONTROLSET));
 }
 
 CPlayerPed::~CPlayerPed()
@@ -58,6 +59,8 @@ void CPlayerPed::Destroy()
 {
 	LOGI("CPlayerPed::Destroy(%d)", m_bytePlayerNumber);
 
+	memset(&GcsRemotePlayerKeys[m_bytePlayerNumber],0,sizeof(GTA_CONTROLSET));
+	SetPlayerPedPtrRecord(m_bytePlayerNumber,0);
 	byteUsedPlayerSlots[m_bytePlayerNumber] = 0;
 
 	if (!m_pPed || !GamePool_Ped_GetAt(m_dwGTAId) || m_pPed->entity.vtable == (g_libGTASA+0x5C7358))
@@ -69,14 +72,17 @@ void CPlayerPed::Destroy()
 	}
 
 	if (IN_VEHICLE(m_pPed)) 
-        RemoveFromVehicleAndPutAt(100.0f, 100.0f, 10.0f);
+		RemoveFromVehicleAndPutAt(100.0f, 100.0f, 10.0f);
 
+	*(uint32_t*)((uintptr_t)m_pPed->dwPlayerInfoOffset + 76) = 0;
+
+	// Call destructor from vtable
 	uint32_t (*DestroyPlayerPed)(PED_TYPE*);
-    *(void **) (&DestroyPlayerPed) = (void*)(g_libGTASA+0x454294+1);
-    (*DestroyPlayerPed)(m_pPed);
+	*(void **) (&DestroyPlayerPed) = (void*)(**(void***)m_pPed);//(g_libGTASA+0x454294+1);
+	(*DestroyPlayerPed)(m_pPed);
 
 	m_pPed = 0;
-    m_pEntity = 0;
+	m_pEntity = 0;
 }
 
 void CPlayerPed::SetInitialState()

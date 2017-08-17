@@ -74,20 +74,22 @@ typedef struct _ENTITY_TYPE
 typedef struct _PED_TYPE
 {
 	ENTITY_TYPE entity; 		// 0000-0184	;entity
-	PADDING(_pad106, 174);		// 0184-0358
+	PADDING(_pad100, 174);		// 0184-0358
 	uint32_t dwPedType;			// 0358-0362	;dwPedType
-	PADDING(_pad101, 734);		// 0362-1096
+	PADDING(_pad101, 726);		// 0362-1088
+	uint32_t dwPlayerInfoOffset;		// 1088-1092
+	PADDING(_pad102, 4);		// 1092-1096
 	uint32_t dwAction;			// 1096-1100	;Action
-	PADDING(_pad102, 52);		// 1100-1152
+	PADDING(_pad103, 52);		// 1100-1152
 	uint32_t dwStateFlags; 		// 1152-1156	;StateFlags
-	PADDING(_pad103, 188);		// 1156-1344
+	PADDING(_pad104, 188);		// 1156-1344
 	float fHealth;		 		// 1344-1348	;Health
 	float fMaxHealth;			// 1348-1352	;MaxHealth
 	float fArmour;				// 1352-1356	;Armour
-	PADDING(_pad104, 12);		// 1356-1368
+	PADDING(_pad105, 12);		// 1356-1368
 	float fRotation1;			// 1368-1372	;Rotation1
 	float fRotation2;			// 1372-1376	;Rotation2
-	PADDING(_pad105, 44);		// 1376-1420
+	PADDING(_pad106, 44);		// 1376-1420
 	uint32_t pVehicle;			// 1420-1424	;pVehicle
 } PED_TYPE;
 

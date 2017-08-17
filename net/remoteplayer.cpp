@@ -77,6 +77,7 @@ void CRemotePlayer::Process()
 				else
 				{
 					// GENERIC VEHICLE MATRIX UPDATE
+					UpdateVehicleRotation();
 					UpdateInCarMatrixAndSpeed(&matVehicle, &m_icSync.vecPos, &m_icSync.vecMoveSpeed);
 					UpdateIncarTargetPosition();
 				}
@@ -109,7 +110,6 @@ void CRemotePlayer::Process()
 			}
 			else if(GetState() == PLAYER_STATE_DRIVER)
 			{
-				UpdateVehicleRotation();
 				m_pPlayerPed->SetICKeys(m_icSync.wKeys, m_icSync.lrAnalog, m_icSync.udAnalog);
 			}
 			else if(GetState() == PLAYER_STATE_PASSENGER)
@@ -426,6 +426,7 @@ bool CRemotePlayer::Spawn(uint8_t byteTeam, int iSkin, VECTOR *vecPos, float fRo
 	{
 		m_pPlayerPed->Destroy();
 		delete m_pPlayerPed;
+		m_pPlayerPed = 0;
 	}
 
 	LOGI("pGame->NewPlayer");
@@ -434,10 +435,10 @@ bool CRemotePlayer::Spawn(uint8_t byteTeam, int iSkin, VECTOR *vecPos, float fRo
 	if(pPlayer)
 	{
 		if(dwColor!=0) SetPlayerColor(dwColor);
-		/*if(pNetGame->m_bShowPlayerMarkers)*/
-		 pPlayer->ShowMarker(m_PlayerID);
+		if(pNetGame->m_iShowPlayerMarkers) pPlayer->ShowMarker(m_PlayerID);
 
 		m_pPlayerPed = pPlayer;
+		m_fReportedHealth = 100.0f;
 		pPlayer->SetOFKeys(0, 0, 0);
 		//pPlayer->SetFightingStyle(byteFightingStyle);
 		pPlayer->SetVisible(bVisible);

@@ -92,6 +92,7 @@ public:
 	CPlayerPed * GetPlayerPed() { return m_pPlayerPed; };
 
 	void SendEnterVehicleNotification(VEHICLEID VehicleID, bool bPassenger);
+	void SendExitVehicleNotification(VEHICLEID VehicleID);
 
 	void SetPlayerColor(uint32_t dwColor);
 	uint32_t GetPlayerColorAsRGBA();

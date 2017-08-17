@@ -375,6 +375,33 @@ void CLocalPlayer::SendEnterVehicleNotification(VEHICLEID VehicleID, bool bPasse
 	*/
 }
 
+void CLocalPlayer::SendExitVehicleNotification(VEHICLEID VehicleID)
+{
+	RakNet::BitStream bsSend;
+	//pChatWindow->AddDebugMessage("Sent Exit: %u\n",byteVehicleID);
+
+	CVehiclePool *pVehiclePool = pNetGame->GetVehiclePool();
+	CVehicle* pVehicle = pVehiclePool->GetAt(VehicleID);
+
+	if(pVehicle)
+	{
+		/*if (!m_pPlayerPed->IsAPassenger()) {
+			// This allows the code to sync vehicles blowing up without them being occupied
+			m_LastVehicle = VehicleID;
+		}*/
+
+		/*if ( pVehicle->IsATrainPart() ) {
+			pGame->GetCamera()->SetBehindPlayer();
+		}*/
+
+		//if(!pVehicle->IsRCVehicle()) {
+			bsSend.Write(VehicleID);
+			pNetGame->GetRakClient()->RPC(&RPC_ExitVehicle,&bsSend,HIGH_PRIORITY,RELIABLE_SEQUENCED,0,false, UNASSIGNED_NETWORK_ID, NULL);
+		//}
+	}
+}
+
+
 void CLocalPlayer::SetPlayerColor(uint32_t dwColor)
 {
 	SetRadarColor(pNetGame->GetPlayerPool()->GetLocalPlayerID(),dwColor);

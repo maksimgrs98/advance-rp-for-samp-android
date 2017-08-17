@@ -11,6 +11,7 @@ void InstallSpecialHooks();
 void InitScripting();
 
 uint8_t byteUsedPlayerSlots[PLAYER_PED_SLOTS];
+uint16_t szGameTextMessage[256];
 
 CGame::CGame()
 {
@@ -163,16 +164,14 @@ void CGame::ToggleRadar(bool iToggle)
 void CGame::DisplayGameText(char *szStr, int iTime, int iType)
 {
 	LOGI("CGame::DisplayGameText (%s)", szStr);
-	uint16_t szGameTextMessage[256];
 
 	ScriptCommand(&text_clear_all);
-	//strcpy(szGameTextMessage, szStr);
 	memset(szGameTextMessage, 0, sizeof(szGameTextMessage));
 	CFont::AsciiToGxtChar(szStr, szGameTextMessage);
 
 	uint32_t (*CMessages__AddBigMessage)(uint16_t *text, int time, int type);
-    *(void **) (&CMessages__AddBigMessage) = (void*)(g_libGTASA+0x4D18C0+1);
-    (*CMessages__AddBigMessage)(szGameTextMessage, iTime, iType);	
+	*(void **) (&CMessages__AddBigMessage) = (void*)(g_libGTASA+0x4D18C0+1);
+	(*CMessages__AddBigMessage)(szGameTextMessage, iTime, iType);
 }
 
 void CGame::PlaySound(int iSound, float fX, float fY, float fZ)

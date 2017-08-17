@@ -43,16 +43,7 @@ void DrawPlayerTags()
 						CFont::SetProportional(1);
 						CFont::SetFontStyle(FONT_SUBTITLES);
 						uint32_t uColor = Player->GetPlayerColorAsRGBA();
-
-						// RGBA to ABGR
-						//LOGI("color = 0x%X", uColor);
-						uint8_t blue = (uint8_t)(uColor >> 8);
-						uint8_t green = (uint8_t)(uColor >> 16);
-						uint8_t red = (uint8_t)(uColor >> 24);
-						//LOGI("blue = %X, green = %X, red = %X", blue, green, red);
-						uColor = (0xFF000000 | ((uint32_t)blue << 16) | ((uint32_t)green << 8) | (uint32_t)red);
-						//LOGI("color = 0x%X", uColor);
-						// ---- 
+						uColor = RGBA_TO_ABGR(uColor);
 
 						CFont::SetColor((uint8_t*)&uColor);
 						CFont::SetScale(1.0f);

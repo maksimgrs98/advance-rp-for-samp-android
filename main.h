@@ -30,6 +30,7 @@
 #include "game/camera.h"
 #include "game/game.h"
 #include "game/scripting.h"
+#include "game/aimstuff.h"
 
 #include "net/localplayer.h"
 #include "net/remoteplayer.h"
