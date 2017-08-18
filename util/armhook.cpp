@@ -22,14 +22,14 @@ void NOP(uintptr_t dest, size_t size)
         *(char*)(ptr+1) = 0x46;
     }
 
-    cacheflush(dest, dest+size, 0);
+    cacheflush(dest, size*2, 0);
 }
 
 void WriteMemory(uintptr_t dest, const char* src, size_t size)
 {
     mprotect((void*)(dest & 0xFFFFF000), PAGESIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
     memcpy((void*)dest, (void*)src, size);
-    cacheflush(dest, dest+size, 0);
+    cacheflush(dest, size, 0);
 }
 
 void ReadMemory(uintptr_t dest, uintptr_t src, size_t size)

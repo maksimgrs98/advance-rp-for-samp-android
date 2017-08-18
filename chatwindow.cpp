@@ -53,6 +53,7 @@ void CChatWindow::RenderText(uint16_t *sz, float x, float y, uint32_t uColor)
 	CFont::SetOrientation(1);
 	CFont::SetProportional(1);
 	CFont::SetFontStyle(FONT_SUBTITLES);
+	//uColor = RGBA_TO_ABGR(uColor);
 	CFont::SetColor((uint8_t*)&uColor);
 	CFont::SetScale(1.22f);
 	CFont::PrintString(x, y, sz);
