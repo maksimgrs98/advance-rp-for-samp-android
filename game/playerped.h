@@ -16,8 +16,8 @@ public:
 	uint16_t GetICKeys(uint16_t *lrAnalog, uint16_t *udAnalog);
 
 	void Destroy();
-	void  ShowMarker(int iMarkerColorID);
-	void  HideMarker();
+	void ShowMarker(int iMarkerColorID);
+	void HideMarker();
 	int GetCurrentVehicleID();
 
 	float GetHealth();

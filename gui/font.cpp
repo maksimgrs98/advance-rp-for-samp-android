@@ -7,6 +7,13 @@ void CFont::PrintString(float x, float y, uint16_t *text)
     (*_PrintString)(x, y, text);
 }
 
+void CFont::RenderFontBuffer()
+{
+    void (*_RenderFontBuffer)();
+    *(void **) (&_RenderFontBuffer) = (void*)(g_libGTASA+0x53411C+1);
+    (*_RenderFontBuffer)();
+}
+
 void CFont::SetScale(float scale)
 {
 	void (*_SetScale)(float scale);

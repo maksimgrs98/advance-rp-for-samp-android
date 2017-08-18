@@ -77,7 +77,8 @@ private:
 	void UpdateNetwork();
 
 	// Packet handlers
-	void Packet_AuthKey(Packet *pkt);
+	void Packet_AuthKey(Packet *pkt);\
+	void Packet_MarkerSync(Packet *pkt);
 	void Packet_PlayerSync(Packet *pkt);
 	void Packet_VehicleSync(Packet *pkt);
 	void Packet_PassengerSync(Packet *pkt);

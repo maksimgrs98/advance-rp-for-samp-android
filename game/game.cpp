@@ -160,7 +160,6 @@ void CGame::ToggleRadar(bool iToggle)
 	*(uint8_t*)(g_libGTASA+0x8EF36B) = (uint8_t)!iToggle;
 }
 
-
 void CGame::DisplayGameText(char *szStr, int iTime, int iType)
 {
 	LOGI("CGame::DisplayGameText (%s)", szStr);
@@ -190,17 +189,15 @@ void CGame::SetCheckpointInformation(VECTOR *pos, VECTOR *extent)
 		DisableMarker(m_dwCheckpointMarker);
 		m_dwCheckpointMarker = 0;
 
-		m_dwCheckpointMarker = CreateRadarMarkerIcon(0, m_vecCheckpointPos.X, m_vecCheckpointPos.Y, m_vecCheckpointPos.Z);
+		CreateRadarMarkerIcon(&m_dwCheckpointMarker, 0, m_vecCheckpointPos.X, m_vecCheckpointPos.Y, m_vecCheckpointPos.Z);
 	}
 }
 
-uint32_t CGame::CreateRadarMarkerIcon(int iMarkerType, float fX, float fY, float fZ, int iColor)
+void CGame::CreateRadarMarkerIcon(uint32_t *dwMarkerID, int iMarkerType, float fX, float fY, float fZ, int iColor)
 {
-	uint32_t dwMarkerID;
-	ScriptCommand(&create_radar_marker_without_sphere, fX, fY, fZ, iMarkerType, &dwMarkerID);
-	ScriptCommand(&set_marker_color, dwMarkerID, iColor);
-	ScriptCommand(&show_on_radar, dwMarkerID, 3);
-	return dwMarkerID;
+	ScriptCommand(&create_radar_marker_without_sphere, fX, fY, fZ, iMarkerType, dwMarkerID);
+	ScriptCommand(&set_marker_color, *dwMarkerID, iColor);
+	ScriptCommand(&show_on_radar, *dwMarkerID, 3);
 }
 
 void CGame::UpdateCheckpoints()
@@ -216,7 +213,7 @@ void CGame::UpdateCheckpoints()
 
 			if(!m_dwCheckpointMarker)
 			{
-				m_dwCheckpointMarker = CreateRadarMarkerIcon(0, m_vecCheckpointPos.X,
+				CreateRadarMarkerIcon(&m_dwCheckpointMarker, 0, m_vecCheckpointPos.X,
 					m_vecCheckpointPos.Y, m_vecCheckpointPos.Z);
 			}
 		}

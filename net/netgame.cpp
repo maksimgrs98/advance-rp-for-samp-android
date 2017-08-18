@@ -194,6 +194,11 @@ void CNetGame::UpdateNetwork()
 			case ID_PASSENGER_SYNC:
 			Packet_PassengerSync(pkt);
 			break;
+
+			// 0.3.7
+			case ID_MARKERS_SYNC:
+			Packet_MarkerSync(pkt);
+			break;
 		}
 
 		m_pRakClient->DeallocatePacket(pkt);
@@ -381,37 +386,78 @@ void CNetGame::Packet_PassengerSync(Packet *p)
 	}
 }
 
-void CNetGame::Packet_AuthKey(Packet *pkt)
+// 0.3.7
+void CNetGame::Packet_MarkerSync(Packet *p)
 {
-	char* auth_key;
-	bool found_key = false;
+	RakNet::BitStream bsMarkerSync((unsigned char *)p->data, p->length, false);
+	int			iNumberOfPlayers = 0;
+	PLAYERID	playerId;
+	short		sPos[3];
+	bool		bIsPlayerActive;
+	uint8_t 	unk0 = 0;
+	CRemotePlayer *pPlayer;
 
-	for(int x = 0; x < 512; x++)
+	bsMarkerSync.Read(unk0);
+	bsMarkerSync.Read(iNumberOfPlayers);
+
+	if(iNumberOfPlayers)
 	{
-		if(!strcmp(((char*)pkt->data + 2), AuthKeyTable[x][0]))
+		for(int i = 0; i < iNumberOfPlayers; i++)
 		{
-			auth_key = AuthKeyTable[x][1];
-			found_key = true;
+			bsMarkerSync.Read(playerId);
+			bsMarkerSync.ReadCompressed(bIsPlayerActive);
+
+			if(bIsPlayerActive)
+			{
+				bsMarkerSync.Read(sPos[0]); // x
+				bsMarkerSync.Read(sPos[1]); // y
+				bsMarkerSync.Read(sPos[2]); // z
+			}
+
+			if(playerId < MAX_PLAYERS && m_pPlayerPool->GetSlotState(playerId))
+			{
+				pPlayer = m_pPlayerPool->GetAt(playerId);
+				if(pPlayer)
+				{
+					if(bIsPlayerActive)
+						pPlayer->SetupGlobalMarker(sPos[0], sPos[1], sPos[2]);
+					else
+						pPlayer->HideGlobalMarker(0);
+				}
+			}
+
+			//LOGI("MARKER_SYNC(unk: %d | iNumberOfPlayers: %d)", unk0, iNumberOfPlayers);
+			//LOGI("MARKER_SYNC(playerId: %d | bIsPlayerActive: %d)", playerId, bIsPlayerActive);
+			//LOGI("MARKER_SYNC(posX: %d | posY: %d | posZ: %d)", sPos[0], sPos[1], sPos[2]);
 		}
 	}
+}
 
-	if(found_key)
-	{
-		RakNet::BitStream bsKey;
-		uint8_t byteAuthKeyLen;
+void gen_auth_key(char buf[260], char* auth_in);
+void CNetGame::Packet_AuthKey(Packet *pkt)
+{
+	RakNet::BitStream bsAuth((unsigned char *)pkt->data, pkt->length, false);
 
-		byteAuthKeyLen = (uint8_t)strlen(auth_key);
-		
-		bsKey.Write((uint8_t)ID_AUTH_KEY);
-		bsKey.Write((uint8_t)byteAuthKeyLen);
-		bsKey.Write(auth_key, byteAuthKeyLen);
+	uint8_t byteAuthLen;
+	char szAuth[260];
 
-		m_pRakClient->Send(&bsKey, SYSTEM_PRIORITY, RELIABLE, NULL);
-	}
-	else
-	{
-		LOGI("Unknown AUTH_IN! (%s)", ((char*)pkt->data + 2));
-	}
+	bsAuth.IgnoreBits(8);
+	bsAuth.Read(byteAuthLen);
+	bsAuth.Read(szAuth, byteAuthLen);
+	szAuth[byteAuthLen] = '\0';
+
+	char szAuthKey[260];
+ 	gen_auth_key(szAuthKey, szAuth);
+
+ 	RakNet::BitStream bsKey;
+ 	uint8_t byteAuthKeyLen = (uint8_t)strlen(szAuthKey);
+ 	bsKey.Write((uint8_t)ID_AUTH_KEY);
+ 	bsKey.Write((uint8_t)byteAuthKeyLen);
+ 	bsKey.Write(szAuthKey, byteAuthKeyLen);
+
+ 	m_pRakClient->Send(&bsKey, SYSTEM_PRIORITY, RELIABLE, NULL);
+
+ 	//LOGI("[AUTH] %s -> %s", szAuth, szAuthKey);
 }
 
 void CNetGame::Packet_ConnectionSucceeded(Packet *pkt)

@@ -170,7 +170,7 @@ void Chat(RPCParameters *rpcParams)
 	if (playerId  == pPlayerPool->GetLocalPlayerID())
 	{
 		pChatWindow->AddChatMessage(pPlayerPool->GetLocalPlayerName(),
-			pPlayerPool->GetLocalPlayer()->GetPlayerColorAsARGB(), (char*)szText);
+			pPlayerPool->GetLocalPlayer()->GetPlayerColorAsRGBA(), (char*)szText);
 	} else {
 		CRemotePlayer *pRemotePlayer = pNetGame->GetPlayerPool()->GetAt(playerId);
 		if(pRemotePlayer) {

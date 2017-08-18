@@ -46,6 +46,12 @@ void CLocalPlayer::Process()
 		// DRIVER CONDITIONS
 		if(m_pPlayerPed->IsInVehicle() && !m_pPlayerPed->IsAPassenger())
 		{
+			CVehiclePool *pVehiclePool = pNetGame->GetVehiclePool();
+			CVehicle *pVehicle;
+			if (pVehiclePool)
+				m_CurrentVehicle = pVehiclePool->FindIDFromGtaPtr(m_pPlayerPed->GetGtaVehicle());
+			pVehicle = pVehiclePool->GetAt(m_CurrentVehicle);
+
 			// updated to 0.3.7
 			if ((dwThisTick - m_dwLastSendTick) > GetOptimumInCarSendRate())
 			{
@@ -57,6 +63,13 @@ void CLocalPlayer::Process()
 		else if(m_pPlayerPed->GetActionTrigger() == ACTION_NORMAL || m_pPlayerPed->GetActionTrigger() == ACTION_SCOPE)
 		{
 			HandlePassengerEntry();
+
+			if(m_CurrentVehicle != INVALID_VEHICLE_ID)
+			{	
+				m_LastVehicle = m_CurrentVehicle;
+				m_CurrentVehicle = INVALID_VEHICLE_ID;
+			}
+
 
 			// updated to 0.3.7
 			if((dwThisTick - m_dwLastSendTick) > GetOptimumOnFootSendRate())
@@ -375,32 +388,29 @@ void CLocalPlayer::SendEnterVehicleNotification(VEHICLEID VehicleID, bool bPasse
 	*/
 }
 
+// допилить
 void CLocalPlayer::SendExitVehicleNotification(VEHICLEID VehicleID)
 {
 	RakNet::BitStream bsSend;
-	//pChatWindow->AddDebugMessage("Sent Exit: %u\n",byteVehicleID);
 
 	CVehiclePool *pVehiclePool = pNetGame->GetVehiclePool();
 	CVehicle* pVehicle = pVehiclePool->GetAt(VehicleID);
-
+	
 	if(pVehicle)
-	{
-		/*if (!m_pPlayerPed->IsAPassenger()) {
-			// This allows the code to sync vehicles blowing up without them being occupied
+	{ 
+		if (!m_pPlayerPed->IsAPassenger())
 			m_LastVehicle = VehicleID;
-		}*/
 
-		/*if ( pVehicle->IsATrainPart() ) {
-			pGame->GetCamera()->SetBehindPlayer();
-		}*/
+		//if ( pVehicle->IsATrainPart() )
+		//	pGame->GetCamera()->SetBehindPlayer();
 
-		//if(!pVehicle->IsRCVehicle()) {
+		if(/*!pVehicle->IsRCVehicle()*/true)
+		{
 			bsSend.Write(VehicleID);
-			pNetGame->GetRakClient()->RPC(&RPC_ExitVehicle,&bsSend,HIGH_PRIORITY,RELIABLE_SEQUENCED,0,false, UNASSIGNED_NETWORK_ID, NULL);
-		//}
+			pNetGame->GetRakClient()->RPC(&RPC_ExitVehicle,&bsSend, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, false, UNASSIGNED_NETWORK_ID, 0);
+		}
 	}
 }
-
 
 void CLocalPlayer::SetPlayerColor(uint32_t dwColor)
 {

@@ -43,8 +43,7 @@ void DrawPlayerTags()
 						CFont::SetProportional(1);
 						CFont::SetFontStyle(FONT_SUBTITLES);
 						uint32_t uColor = Player->GetPlayerColorAsRGBA();
-						uColor = RGBA_TO_ABGR(uColor);
-
+						RGBA_ABGR(uColor);
 						CFont::SetColor((uint8_t*)&uColor);
 						CFont::SetScale(1.0f);
 						CFont::AsciiToGxtChar(pPlayerPool->GetPlayerName(x), buf);

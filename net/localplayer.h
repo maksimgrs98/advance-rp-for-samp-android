@@ -115,4 +115,8 @@ private:
 	uint32_t			m_dwLastSendTick;
 
 	bool				m_bIsSpectating;
+
+
+	VEHICLEID			m_CurrentVehicle;
+	VEHICLEID			m_LastVehicle;
 };

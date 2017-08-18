@@ -9,7 +9,7 @@ CChatWindow::CChatWindow()
 
 	m_uChatTextColor = 0xFFFFFFFF;
 	m_uChatInfoColor = 0xFFFFFFFF;
-	m_uChatDebugColor = 0xFFFF0000;
+	m_uChatDebugColor = 0x0000FFFF;
 }
 
 CChatWindow::~CChatWindow()
@@ -56,7 +56,6 @@ void CChatWindow::RenderText(uint16_t *sz, float x, float y, uint32_t uColor)
 	//uColor = RGBA_TO_ABGR(uColor);
 	CFont::SetColor((uint8_t*)&uColor);
 	CFont::SetScale(1.22f);
-
 	CFont::PrintString(x, y, sz);
 }
 
@@ -121,6 +120,8 @@ void CChatWindow::AddToChatWindowBuffer(eChatMessageType eType,
 	m_ChatWindowEntries[0].eType = eType;
 	m_ChatWindowEntries[0].uTextColor = uTextColor;
 	m_ChatWindowEntries[0].uNickColor = uNickColor;
+	RGBA_ABGR(m_ChatWindowEntries[0].uTextColor);
+	RGBA_ABGR(m_ChatWindowEntries[0].uNickColor);
 
 	if(szNick)
 	{

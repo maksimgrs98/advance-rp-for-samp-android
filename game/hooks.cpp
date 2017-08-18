@@ -7,12 +7,12 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
-#include "gui/imgui/imgui.h"
-#include "gui/imgui_impl_gles2.h"
-
 extern CChatWindow *pChatWindow;
 extern CNetGame *pNetGame;
 extern CGame *pGame;
+
+CVehicle 		*pVehicleClass;
+uintptr_t 		dwRetAddr = 0;
 
 void DoInitStuff();
 
@@ -202,7 +202,6 @@ uint32_t CPed__ProcessControl_hook(uintptr_t thiz)
 
 		// CWidget::setEnabled
 		WriteMemory(g_libGTASA+0x274178, "\x70\x47", 2);
-
 
 		// call original
 		(*CPed__ProcessControl)(thiz);
@@ -487,57 +486,14 @@ int LoadShader(int type, const char* shaderCode)
 	return shader;
 }
 
-bool bInit = false;
-int ShaderProgram = 0;
-bool showAnotherWindow = false;
-
+bool ogl_bInit = false;
 uint32_t (*RQ_Command_rqSwapBuffers)(uint32_t r0);
 uint32_t RQ_Command_rqSwapBuffers_hook(uint32_t r0)
 {
-	if (!bInit)
+	if (!ogl_bInit)
   	{
-  		ImGui_ImplGLES2_Init();
-
-  		bInit = true;
-  		//int vertexShader = LoadShader(GL_VERTEX_SHADER, vertexShaderCode);
-  		//int fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragmentShaderCode);
-
-  		//ShaderProgram = glCreateProgram();
-  		//glAttachShader(ShaderProgram, vertexShader);
-  		//glAttachShader(ShaderProgram, fragmentShader);
-  		//glLinkProgram(ShaderProgram);
   	}
 
-  	ImGui_ImplGLES2_NewFrame();
-
-  	ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
-    ImGui::Begin("Another Window", &showAnotherWindow);
-    ImGui::Text("Hello");
-    ImGui::End();
-
-    //glClearColor(imClearColor.x, imClearColor.y, imClearColor.z, imClearColor.w);
-    //glClear(GL_COLOR_BUFFER_BIT);
-
-    ImGui::Render();
-  	//glClearColor(0.8f, 0.0f, 0.0f, 1.0f);
-  	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//GLint last_program;
-	//glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
-
-  	//glUseProgram(ShaderProgram);
-  	//int PositionAttrib = glGetAttribLocation(ShaderProgram, "vPosition");
-  	//glEnableVertexAttribArray(PositionAttrib);
-  	//glVertexAttribPointer(PositionAttrib, 3, GL_FLOAT, false, 0, globVertexBufferData);
-
-  	//int colorUniform = glGetUniformLocation(ShaderProgram, "vColor");
-  	//glUniform4fv(colorUniform, 1, color);
-  	//glDrawArrays(GL_TRIANGLES, 0, 3);
-  	//glDisableVertexAttribArray(PositionAttrib);
-
-  	//glUseProgram(last_program);
-
-	//LOGI("RQ_Command_rqSwapBuffers ");
 	return (*RQ_Command_rqSwapBuffers)(r0);
 }
 
@@ -662,6 +618,106 @@ void CTaskComplexLeaveCar_hook(uintptr_t** thiz, VEHICLE_TYPE *pVehicle, int iTa
 	(*CTaskComplexLeaveCar)(thiz, pVehicle, iTargetDoor, iDelayTime, bSensibleLeaveCar, bForceGetOut);
 }
 
+#if 0
+bool NotifyEnterVehicle(VEHICLE_TYPE *_pVehicle)
+{
+	LOGI("NotifyEnterVehicle");
+
+	if(!pNetGame) return false;
+
+	CVehiclePool *pVehiclePool = pNetGame->GetVehiclePool();
+	VEHICLEID VehicleID = pVehiclePool->FindIDFromGtaPtr(_pVehicle);
+
+	if(VehicleID == INVALID_VEHICLE_ID) return false;
+	if(!pVehiclePool->GetSlotState(VehicleID)) return false;
+	pVehicleClass = pVehiclePool->GetAt(VehicleID);
+	//if(pVehicleClass->m_bDoorsLocked) return false;
+	if(pVehicleClass->m_pVehicle->entity.nModelIndex == TRAIN_PASSENGER) return false;
+
+	if(pVehicleClass->m_pVehicle->pDriver &&
+	   	pVehicleClass->m_pVehicle->pDriver->dwPedType != 0)
+		return false;
+
+	CLocalPlayer *pLocalPlayer = pNetGame->GetPlayerPool()->GetLocalPlayer();
+
+	//if(pLocalPlayer->GetPlayerPed() && pLocalPlayer->GetPlayerPed()->GetCurrentWeapon() == WEAPON_PARACHUTE)
+	//	pLocalPlayer->GetPlayerPed()->SetArmedWeapon(0);
+
+	pLocalPlayer->SendEnterVehicleNotification(VehicleID, false);
+
+	return true;
+}
+
+
+void (*CTaskComplexEnterCarAsDriver)();
+void __attribute__((naked)) CTaskComplexEnterCarAsDriver_hook(uint32_t thiz, VEHICLE_TYPE* pVehicle)
+{
+
+	/*__asm__ volatile("push {r0-r11, lr}\n\t"
+					"mov r2, lr\n\t"
+					"blx get_lib\n\t"
+					"add r0, #0x3A0000\n\t"
+					"add r0, #0xEE00\n\t"
+					"add r0, #0xF7\n\t"
+					"cmp r2, r0\n\t"
+					"bne 1f\n\t" // !=
+					"mov r0, r1\n\t"
+					"blx NotifyEnterVehicle\n\t" // call NotifyEnterVehicle
+					"1:\n\t"  // call orig
+					"pop {r0-r11, lr}\n\t");
+					*/
+
+	__asm__ volatile(
+		"push {r0-r11, lr}\n\t"
+		"mov r2, lr\n\t"
+		"mov %0, lr\n\t" : "=r" (dwRetAddr));
+	dwRetAddr-= g_libGTASA;
+	if(dwRetAddr == 0x3AEEF7)
+		NotifyEnterVehicle(pVehicle);
+
+
+	__asm__ volatile("pop {r0-r11, lr}\n\t");
+	return (*CTaskComplexEnterCarAsDriver)();
+}
+
+
+void (*CTaskComplexLeaveCar)(uintptr_t thiz, 
+	VEHICLE_TYPE *pVehicle, 
+	int iTargetDoor, 
+	int iDelayTime, 
+	bool bSensibleLeaveCar, 
+	bool bForceGetOut);
+
+bool bIgnoreNextExit = false;
+void CTaskComplexLeaveCar_hook(uintptr_t thiz, 
+	VEHICLE_TYPE *pVehicle,
+	int iTargetDoor,
+	int iDelayTime,
+	bool bSensibleLeaveCar,
+	bool bForceGetOut)
+{
+	__asm__ volatile ("mov %0, lr" : "=r" (dwRetAddr));
+	dwRetAddr -= g_libGTASA;
+
+	if (dwRetAddr == 0x3AE905 || dwRetAddr == 0x3AE9CF)
+	{
+		if(pNetGame)
+		{
+			 if (GamePool_FindPlayerPed()->pVehicle == (uint32_t)pVehicle)
+			 {
+			 	CVehiclePool *pVehiclePool = pNetGame->GetVehiclePool();
+			 	VEHICLEID VehicleID = pVehiclePool->FindIDFromGtaPtr((VEHICLE_TYPE *)GamePool_FindPlayerPed()->pVehicle);
+
+			 	CLocalPlayer *pLocalPlayer = pNetGame->GetPlayerPool()->GetLocalPlayer();
+			 	pLocalPlayer->SendExitVehicleNotification(VehicleID);
+			 }
+		}
+	}
+
+	(*CTaskComplexLeaveCar)(thiz, pVehicle, iTargetDoor, iDelayTime, bSensibleLeaveCar, bForceGetOut);
+}
+#endif
+
 void InstallSpecialHooks()
 {
 	// NvFOpen redirect
@@ -683,6 +739,9 @@ void InstallGameAndGraphicsLoopHooks()
 	SetUpHook(g_libGTASA+0x39C9E4, (uintptr_t)CPad__GetSteeringLeftRight_hook, (uintptr_t*)&CPad__GetSteeringLeftRight);
 	SetUpHook(g_libGTASA+0x39DB7C, (uintptr_t)CPad__GetAccelerate_hook, (uintptr_t*)&CPad__GetAccelerate);
 	SetUpHook(g_libGTASA+0x39D938, (uintptr_t)CPad__GetBrake_hook, (uintptr_t*)&CPad__GetBrake);
+
+	SetUpHook(g_libGTASA+0x482E60, (uintptr_t)CTaskComplexEnterCarAsDriver_hook, (uintptr_t*)&CTaskComplexEnterCarAsDriver);
+	SetUpHook(g_libGTASA+0x4833CC, (uintptr_t)CTaskComplexLeaveCar_hook, (uintptr_t*)&CTaskComplexLeaveCar);
 }
 
 void GameInstallHooks()
@@ -693,8 +752,6 @@ void GameInstallHooks()
 	SetUpHook(g_libGTASA+0x45A280, (uintptr_t)CPed__ProcessControl_hook, (uintptr_t*)&CPed__ProcessControl);
 	SetUpHook(g_libGTASA+0x3DE9A8, (uintptr_t)CRadar__DrawRadarGangOverlay_hook, (uintptr_t*)&CRadar__DrawRadarGangOverlay);
 	SetUpHook(g_libGTASA+0x3DBA88, (uintptr_t)CRadar__GetRadarTraceColor_hook, (uintptr_t*)&CRadar__GetRadarTraceColor);
-	SetUpHook(g_libGTASA+0x482E60, (uintptr_t)CTaskComplexEnterCarAsDriver_hook, (uintptr_t*)&CTaskComplexEnterCarAsDriver);
-	SetUpHook(g_libGTASA+0x4833CC, (uintptr_t)CTaskComplexLeaveCar_hook, (uintptr_t*)&CTaskComplexLeaveCar);
 
 	InstallMethodHook(g_libGTASA+0x5CCA1C, (uintptr_t)AllVehicles_ProcessControl_Hook); // CAutomobile::ProcessControl
 	InstallMethodHook(g_libGTASA+0x5CCD74, (uintptr_t)AllVehicles_ProcessControl_Hook); // CBoat::ProcessControl

@@ -46,7 +46,7 @@ public:
 	void ToggleCheckpoint(bool bEnabled) { m_bCheckpointsEnabled = bEnabled; };
 	void SetCheckpointInformation(VECTOR *pos, VECTOR *extent);
 
-	uint32_t CreateRadarMarkerIcon(int iMarkerType, float fX, float fY, float fZ, int iColor = 201);
+	void CreateRadarMarkerIcon(uint32_t *dwMarkerID, int iMarkerType, float fX, float fY, float fZ, int iColor = 201);
 	void DisableMarker(uint32_t dwMarkerID);
 
 	void AddToLocalMoney(int iAmount);
