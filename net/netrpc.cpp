@@ -512,6 +512,43 @@ void DialogBox(RPCParameters *rpcParams)
 	LOGI("wDialogID = %d", wDialogID);
 }
 
+void Pickup(RPCParameters *rpcParams)
+{
+	LOGI("RPC_PICKUP");
+
+	unsigned char * Data = reinterpret_cast<unsigned char *>(rpcParams->input);
+	int iBitLength = rpcParams->numberOfBitsOfData;
+
+	RakNet::BitStream bsData(Data,(iBitLength/8)+1,false);
+
+	PICKUP Pickup;
+	int iIndex;
+
+	bsData.Read(iIndex);
+	bsData.Read((char*)&Pickup, sizeof (PICKUP));
+
+	LOGI("Pickup(%d): %d %d %f %f %f", iIndex, Pickup.iModel, Pickup.iType, Pickup.fX, Pickup.fY, Pickup.fZ);
+
+	CPickupPool *pPickupPool = pNetGame->GetPickupPool();
+	if (pPickupPool) pPickupPool->New(&Pickup, iIndex);
+}
+
+void DestroyPickup(RPCParameters *rpcParams)
+{
+	LOGI("RPC_DESTROYPICKUP");
+
+	unsigned char * Data = reinterpret_cast<unsigned char *>(rpcParams->input);
+	int iBitLength = rpcParams->numberOfBitsOfData;
+
+	RakNet::BitStream bsData(Data,(iBitLength/8)+1,false);
+
+	int iIndex;
+	bsData.Read(iIndex);
+
+	CPickupPool *pPickupPool = pNetGame->GetPickupPool();
+	if (pPickupPool) pPickupPool->Destroy(iIndex);
+}
+
 void RegisterRPCs(RakClientInterface *pRakClient)
 {
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_InitGame, InitGame);
@@ -533,4 +570,7 @@ void RegisterRPCs(RakClientInterface *pRakClient)
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_EnterVehicle, EnterVehicle);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ExitVehicle, ExitVehicle);
 	//pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrDialogBox, DialogBox);
+
+	pRakClient->RegisterAsRemoteProcedureCall(&RPC_Pickup, Pickup);
+	pRakClient->RegisterAsRemoteProcedureCall(&RPC_DestroyPickup, DestroyPickup);
 }

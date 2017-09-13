@@ -721,6 +721,13 @@ uint8_t FindPlayerNumFromPedPtr(uint32_t dwPedPtr)
 	return 0;
 }
 
+ENTITY_TYPE *GamePool_Object_GetAt(int iID)
+{
+	ENTITY_TYPE* (*GetPoolObj)(int iID);
+	*(void **) (&GetPoolObj) = (void*)g_libGTASA+0x41DDB4+1;
+	return (GetPoolObj)(iID);
+} 
+
 void DisableMarker_037(uint32_t uid)
 {
 	ScriptCommand(&disable_marker, uid);

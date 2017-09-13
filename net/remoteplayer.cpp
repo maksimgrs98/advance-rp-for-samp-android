@@ -13,6 +13,7 @@ CRemotePlayer::CRemotePlayer()
 	m_pPlayerPed = 0;
 	m_VehicleID = 0;
 	m_dwWaitForEntryExitAnims = GetTickCount();
+	m_bGlobalMarkerLoaded = false;
 	m_dwGlobalMarker = 0;
 }
 
@@ -80,7 +81,6 @@ void CRemotePlayer::Process()
 				else
 				{
 					// GENERIC VEHICLE MATRIX UPDATE
-					UpdateVehicleRotation();
 					UpdateInCarMatrixAndSpeed(&matVehicle, &m_icSync.vecPos, &m_icSync.vecMoveSpeed);
 					UpdateIncarTargetPosition();
 				}
@@ -111,8 +111,10 @@ void CRemotePlayer::Process()
 				// test
 				m_pPlayerPed->SetMoveSpeedVector(m_ofSync.vecMoveSpeed);
 			}
-			else if(GetState() == PLAYER_STATE_DRIVER)
+			else if(GetState() == PLAYER_STATE_DRIVER && m_pPlayerPed->IsInVehicle())
 			{
+				if(!m_pCurrentVehicle) return;
+				UpdateVehicleRotation();
 				m_pPlayerPed->SetICKeys(m_icSync.wKeys, m_icSync.lrAnalog, m_icSync.udAnalog);
 			}
 			else if(GetState() == PLAYER_STATE_PASSENGER)
@@ -619,7 +621,7 @@ void CRemotePlayer::SetupGlobalMarker(short x, short y, short z)
 
 	if(!m_pPlayerPed)
 	{		
-		pGame->CreateRadarMarkerIcon(&m_dwGlobalMarker, 0, (float)x, (float)y, (float)z, m_PlayerID);
+		m_dwGlobalMarker = pGame->CreateRadarMarkerIcon(0, (float)x, (float)y, (float)z, m_PlayerID);
 
 		m_sGlobalMarkerPos[0] = x;
 		m_sGlobalMarkerPos[1] = y;

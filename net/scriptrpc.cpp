@@ -461,6 +461,96 @@ void ScrSetPlayerColor(RPCParameters *rpcParams)
 		if(pPlayer)	pPlayer->SetPlayerColor(dwColor);
 	}
 }
+
+void ScrCreateObject(RPCParameters *rpcParams)
+{
+	LOGI("RPC_SCRCREATEOBJECT");
+
+	unsigned char * Data = reinterpret_cast<unsigned char *>(rpcParams->input);
+	int iBitLength = rpcParams->numberOfBitsOfData;
+
+	uint16_t wObjectID;
+	unsigned long ModelID;
+	float fDrawDistance;
+	VECTOR vecPos, vecRot;
+	RakNet::BitStream bsData(Data,(iBitLength/8)+1,false);
+	bsData.Read(wObjectID);
+	bsData.Read(ModelID);
+
+	bsData.Read(vecPos.X);
+	bsData.Read(vecPos.Y);
+	bsData.Read(vecPos.Z);
+
+	bsData.Read(vecRot.X);
+	bsData.Read(vecRot.Y);
+	bsData.Read(vecRot.Z);
+
+	bsData.Read(fDrawDistance);
+
+	LOGI("id: %d model: %d x: %f y: %f z: %f", wObjectID, ModelID, vecPos.X, vecPos.Y, vecPos.Z);
+	LOGI("vecRot: %f %f %f", vecRot.X, vecRot.Y, vecRot.Z);
+
+	CObjectPool *pObjectPool = pNetGame->GetObjectPool();
+	pObjectPool->New(wObjectID, ModelID, vecPos, vecRot, fDrawDistance);
+}
+
+void ScrDestroyObject(RPCParameters *rpcParams)
+{
+	LOGI("RPC_SCRDELETEOBJECT");
+
+	unsigned char * Data = reinterpret_cast<unsigned char *>(rpcParams->input);
+	int iBitLength = rpcParams->numberOfBitsOfData;
+
+	uint16_t wObjectID;
+	RakNet::BitStream bsData(Data,(iBitLength/8)+1,false);
+	bsData.Read(wObjectID);
+
+	LOGI("id: %d", wObjectID);
+
+	CObjectPool* pObjectPool =	pNetGame->GetObjectPool();
+	if(pObjectPool->GetAt(wObjectID))
+		pObjectPool->Delete(wObjectID);
+}
+
+void ScrSetObjectPos(RPCParameters *rpcParams)
+{
+	LOGI("RPC_SCRSETOBJECTPOS");
+
+	unsigned char * Data = reinterpret_cast<unsigned char *>(rpcParams->input);
+	int iBitLength = rpcParams->numberOfBitsOfData;
+
+	uint16_t wObjectID;
+	float fRotation;
+	VECTOR vecPos;
+	RakNet::BitStream bsData(Data,(iBitLength/8)+1,false);
+	bsData.Read(wObjectID);
+	bsData.Read(vecPos.X);
+	bsData.Read(vecPos.Y);
+	bsData.Read(vecPos.Z);
+	bsData.Read(fRotation);
+
+	LOGI("id: %d x: %.2f y: %.2f z: %.2f rot: %f", wObjectID, vecPos.X, vecPos.Y, vecPos.Z, fRotation);
+
+	CObjectPool*	pObjectPool =	pNetGame->GetObjectPool();
+	CObject*		pObject		=	pObjectPool->GetAt(wObjectID);
+	if(pObject)
+		pObject->TeleportTo(vecPos.X, vecPos.Y, vecPos.Z);
+}
+
+void ScrTogglePlayerControllable(RPCParameters *rpcParams)
+{
+	LOGI("RPC_SCRTOGGLEPLAYERCONTROLLABLE");
+
+	unsigned char * Data = reinterpret_cast<unsigned char *>(rpcParams->input);
+	int iBitLength = rpcParams->numberOfBitsOfData;
+
+	RakNet::BitStream bsData(Data,(iBitLength/8)+1,false);
+	uint8_t byteControllable;
+	bsData.Read(byteControllable);
+	LOGI("controllable = %d", byteControllable);
+	pNetGame->GetPlayerPool()->GetLocalPlayer()->GetPlayerPed()->TogglePlayerControllable((int)byteControllable);
+}
+
 void RegisterScriptRPCs(RakClientInterface *pRakClient)
 {
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetSpawnInfo, ScrSetSpawnInfo);
@@ -488,6 +578,10 @@ void RegisterScriptRPCs(RakClientInterface *pRakClient)
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrRemoveGangZone, ScrRemoveGangZone);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrFlashGangZone, ScrFlashGangZone);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrStopFlashGangZone, ScrStopFlashGangZone);
-
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetPlayerColor, ScrSetPlayerColor);
+
+	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrCreateObject, ScrCreateObject);
+	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetObjectPos, ScrSetObjectPos);
+	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrDestroyObject, ScrDestroyObject);
+	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrTogglePlayerControllable, ScrTogglePlayerControllable);
 }

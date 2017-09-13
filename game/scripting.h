@@ -65,3 +65,6 @@ const SCRIPT_COMMAND send_actor_to_car_driverseat		= { 0x05CB, "iii" };
 const SCRIPT_COMMAND send_actor_to_car_passenger		= { 0x05CA, "iiii" };
 const SCRIPT_COMMAND make_actor_leave_car				= { 0x05CD, "ii" };
 const SCRIPT_COMMAND set_actor_immunities				= { 0x02ab, "iiiiii" };
+const SCRIPT_COMMAND is_pickup_picked_up				= { 0x0214, "i" };
+const SCRIPT_COMMAND toggle_player_controllable 		= { 0x01B4, "ii" };
+const SCRIPT_COMMAND lock_actor							= { 0x04d7, "ii" };

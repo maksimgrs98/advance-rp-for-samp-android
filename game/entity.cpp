@@ -47,8 +47,6 @@ void CEntity::SetMatrix(MATRIX4X4 Matrix)
 
 void CEntity::GetMoveSpeedVector(PVECTOR Vector)
 {
-	if (!m_pEntity || !Vector) return;
-
 	Vector->X = m_pEntity->vecMoveSpeed.X;
 	Vector->Y = m_pEntity->vecMoveSpeed.Y;
 	Vector->Z = m_pEntity->vecMoveSpeed.Z;
@@ -56,8 +54,6 @@ void CEntity::GetMoveSpeedVector(PVECTOR Vector)
 
 void CEntity::SetMoveSpeedVector(VECTOR Vector)
 {
-	if (!m_pEntity) return;
-
 	m_pEntity->vecMoveSpeed.X = Vector.X;
 	m_pEntity->vecMoveSpeed.Y = Vector.Y;
 	m_pEntity->vecMoveSpeed.Z = Vector.Z;
@@ -65,8 +61,6 @@ void CEntity::SetMoveSpeedVector(VECTOR Vector)
 
 void CEntity::GetTurnSpeedVector(PVECTOR Vector)
 {
-	if (!m_pEntity || !Vector) return;
-
 	Vector->X = m_pEntity->vecTurnSpeed.X;
 	Vector->Y = m_pEntity->vecTurnSpeed.Y;
 	Vector->Z = m_pEntity->vecTurnSpeed.Z;
@@ -74,8 +68,6 @@ void CEntity::GetTurnSpeedVector(PVECTOR Vector)
 
 void CEntity::SetTurnSpeedVector(VECTOR Vector)
 {
-	if (!m_pEntity) return;
-
 	m_pEntity->vecTurnSpeed.X = Vector.X;
 	m_pEntity->vecTurnSpeed.Y = Vector.Y;
 	m_pEntity->vecTurnSpeed.Z = Vector.Z;
@@ -106,9 +98,7 @@ void CEntity::SetModelIndex(uint16_t uiModel)
 
 uint16_t CEntity::GetModelIndex()
 {
-	if(!m_pEntity) return 0;
-
-	return m_pEntity->nModelIndex;
+		return m_pEntity->nModelIndex;
 }
 
 void CEntity::TeleportTo(float x, float y, float z)

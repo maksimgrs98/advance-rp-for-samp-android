@@ -50,6 +50,8 @@ public:
 	void SetInterior(uint8_t byteID);
 	bool IsOnGround();
 
+	void TogglePlayerControllable(int iControllable);
+
 	PED_TYPE	*m_pPed;
 	uint8_t		m_bytePlayerNumber;
 

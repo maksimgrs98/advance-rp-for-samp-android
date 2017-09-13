@@ -9,7 +9,6 @@ CChatWindow *pChatWindow = 0;
 
 bool bGameInited = false;
 bool bNetworkInited = false;
-pthread_t thread;
 
 uintptr_t g_libGTASA = 0;
 
@@ -82,6 +81,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 	
 	InitHookStuff();
 
+	pthread_t thread;
 	pthread_create(&thread, 0, Init, 0);
 
 	LOGI(VERSION " Inited!");

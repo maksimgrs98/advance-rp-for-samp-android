@@ -26,6 +26,8 @@ public:
 
 	CPlayerPool 		*GetPlayerPool() 	{ return m_pPlayerPool; 	};
 	CVehiclePool 		*GetVehiclePool() 	{ return m_pVehiclePool; 	};
+	CObjectPool			*GetObjectPool()	{ return m_pObjectPool;		};
+	CPickupPool			*GetPickupPool()	{ return m_pPickupPool;		};
 	CGangZonePool 		*GetGangZonePool() 	{ return m_pGangZonePool; 	};
 	
 	RakClientInterface 	*GetRakClient() 	{ return m_pRakClient; 		};
@@ -69,6 +71,8 @@ private:
 
 	CPlayerPool			*m_pPlayerPool;
 	CVehiclePool		*m_pVehiclePool;
+	CObjectPool			*m_pObjectPool;
+	CPickupPool			*m_pPickupPool;
 	CGangZonePool		*m_pGangZonePool;
 
 	int					m_iGameState;

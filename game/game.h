@@ -18,6 +18,7 @@ public:
 	uint8_t FindFirstFreePlayerPedSlot();
 	CPlayerPed *NewPlayer(int iSkin, float fPosX, float fPosY, float fPosZ, float fRotation, uint8_t byteCreateMarker = 1);
 	CVehicle *NewVehicle(int iType, float fPosX, float fPosY, float fPosZ, float fRotation, char* szNumberPlate);
+	CObject *NewObject(int iModel, float fPosX, float fPosY, float fPosZ, VECTOR vecRot, float fDrawDistance);
 
 	float FindGroundZForCoord(float x, float y, float z);
 	void InitGame();
@@ -46,7 +47,7 @@ public:
 	void ToggleCheckpoint(bool bEnabled) { m_bCheckpointsEnabled = bEnabled; };
 	void SetCheckpointInformation(VECTOR *pos, VECTOR *extent);
 
-	void CreateRadarMarkerIcon(uint32_t *dwMarkerID, int iMarkerType, float fX, float fY, float fZ, int iColor = 201);
+	uint32_t CreateRadarMarkerIcon(int iMarkerType, float fX, float fY, float fZ, int iColor = 201);
 	void DisableMarker(uint32_t dwMarkerID);
 
 	void AddToLocalMoney(int iAmount);
