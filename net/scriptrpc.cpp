@@ -554,6 +554,30 @@ void ScrTogglePlayerControllable(RPCParameters *rpcParams)
 	pNetGame->GetPlayerPool()->GetLocalPlayer()->GetPlayerPed()->TogglePlayerControllable((int)byteControllable);
 }
 
+void ScrSetMapIcon(RPCParameters *rpcParams)
+{
+	LOGI("RPC_SCRSETMAPICON");
+
+	unsigned char * Data = reinterpret_cast<unsigned char *>(rpcParams->input);
+	int iBitLength = rpcParams->numberOfBitsOfData;
+
+	RakNet::BitStream bsData(Data,(iBitLength/8)+1,false);
+
+	uint8_t byteIndex;
+	uint8_t byteIcon;
+	uint32_t dwColor;
+	float fPos[3];
+
+	bsData.Read(byteIndex);
+	bsData.Read(fPos[0]);
+	bsData.Read(fPos[1]);
+	bsData.Read(fPos[2]);
+	bsData.Read(byteIcon);
+	bsData.Read(dwColor);
+
+	pNetGame->SetMapIcon(byteIndex, fPos[0], fPos[1], fPos[2], byteIcon, dwColor);
+}
+
 void RegisterScriptRPCs(RakClientInterface *pRakClient)
 {
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetSpawnInfo, ScrSetSpawnInfo);
@@ -582,9 +606,10 @@ void RegisterScriptRPCs(RakClientInterface *pRakClient)
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrFlashGangZone, ScrFlashGangZone);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrStopFlashGangZone, ScrStopFlashGangZone);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetPlayerColor, ScrSetPlayerColor);
-
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrCreateObject, ScrCreateObject);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetObjectPos, ScrSetObjectPos);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrDestroyObject, ScrDestroyObject);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrTogglePlayerControllable, ScrTogglePlayerControllable);
+
+	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrSetMapIcon, ScrSetMapIcon);
 }

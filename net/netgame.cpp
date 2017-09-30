@@ -40,6 +40,8 @@ CNetGame::CNetGame(char *szHostOrIp, int iPort, char* szPlayerName, char *szPass
 	m_byteWeather = 10;
 	m_byteHoldTime = 1;
 
+	for(int i = 0; i < 32; i++) m_dwMapIcon[i] = 0;
+
 	pGame->EnableClock(false);
 	pGame->EnableZoneNames(false);
 
@@ -569,4 +571,18 @@ void CNetGame::ResetVehiclePool()
 		delete m_pVehiclePool;
 
 	m_pVehiclePool = new CVehiclePool();
+}
+
+void CNetGame::SetMapIcon(uint8_t byteIndex, float fX, float fY, float fZ, uint8_t byteIcon, uint32_t dwColor)
+{
+	if(byteIndex >= 32) return;
+	if(m_dwMapIcon[byteIndex] != 0) DisableMapIcon(byteIndex);
+	m_dwMapIcon[byteIndex] = pGame->CreateRadarMarkerIcon(byteIcon, fX, fY, fZ, dwColor);
+}
+
+void CNetGame::DisableMapIcon(uint8_t byteIndex)
+{
+	if(byteIndex >= 32) return;
+	ScriptCommand(&disable_marker, m_dwMapIcon[byteIndex]);
+	m_dwMapIcon[byteIndex] = 0;
 }

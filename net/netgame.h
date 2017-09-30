@@ -37,6 +37,8 @@ public:
 	void ResetVehiclePool();
 	void ShutdownForGameModeRestart();
 
+	void SetMapIcon(uint8_t byteIndex, float fX, float fY, float fZ, uint8_t byteIcon, uint32_t dwCOlor);
+	void DisableMapIcon(uint8_t byteIndex);
 
 	int			m_iSpawnsAvailable;
 	int			m_iShowPlayerMarkers;
@@ -57,6 +59,7 @@ public:
 	float		m_fGlobalChatRadius;
 	float		m_fNameTagDrawDistance;
 	bool		m_bDisableEnterExits;
+	uint32_t	m_dwMapIcon[32];
 
 	// new
 	bool		m_bManualVehicleEngineAndLight;
