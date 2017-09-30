@@ -549,6 +549,42 @@ void DestroyPickup(RPCParameters *rpcParams)
 	if (pPickupPool) pPickupPool->Destroy(iIndex);
 }
 
+void SetRaceCheckpoint(RPCParameters *rpcParams)
+{
+	unsigned char * Data = reinterpret_cast<unsigned char *>(rpcParams->input);
+	int iBitLength = rpcParams->numberOfBitsOfData;
+
+	RakNet::BitStream bsData(Data,(iBitLength/8)+1,false);
+	float fX, fY, fZ;
+	uint8_t byteType;
+	VECTOR Pos, Next;
+
+	bsData.Read(byteType);
+	bsData.Read(fX);
+	bsData.Read(fY);
+	bsData.Read(fZ);
+	Pos.X = fX;
+	Pos.Y = fY;
+	Pos.Z = fZ;
+
+	bsData.Read(fX);
+	bsData.Read(fY);
+	bsData.Read(fZ);
+	Next.X = fX;
+	Next.Y = fY;
+	Next.Z = fZ;
+
+	bsData.Read(fX); // Float:size
+
+	pGame->SetRaceCheckpointInformation(byteType, &Pos, &Next, fX);
+	pGame->ToggleRaceCheckpoints(true);
+}
+
+void DisableRaceCheckpoint(RPCParameters *rpcParams)
+{
+	pGame->ToggleRaceCheckpoints(false);
+}
+
 void RegisterRPCs(RakClientInterface *pRakClient)
 {
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_InitGame, InitGame);
@@ -570,7 +606,9 @@ void RegisterRPCs(RakClientInterface *pRakClient)
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_EnterVehicle, EnterVehicle);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_ExitVehicle, ExitVehicle);
 	//pRakClient->RegisterAsRemoteProcedureCall(&RPC_ScrDialogBox, DialogBox);
-
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_Pickup, Pickup);
 	pRakClient->RegisterAsRemoteProcedureCall(&RPC_DestroyPickup, DestroyPickup);
+
+	pRakClient->RegisterAsRemoteProcedureCall(&RPC_SetRaceCheckpoint, SetRaceCheckpoint);
+	pRakClient->RegisterAsRemoteProcedureCall(&RPC_DisableRaceCheckpoint, DisableRaceCheckpoint);
 }

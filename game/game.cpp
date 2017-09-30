@@ -17,6 +17,8 @@ CGame::CGame()
 	m_pGameCamera = new CCamera();
 	m_pGamePlayer = 0;
 	m_bCheckpointsEnabled = false;
+	m_bRaceCheckpointsEnabled = false;
+	m_dwRaceCheckpointHandle = 0;
 
 	memset(&byteUsedPlayerSlots[0], 0, PLAYER_PED_SLOTS);
 }
@@ -209,31 +211,6 @@ uint32_t CGame::CreateRadarMarkerIcon(int iMarkerType, float fX, float fY, float
 	return dwMarkerID;
 }
 
-void CGame::UpdateCheckpoints()
-{
-	if(m_bCheckpointsEnabled)
-	{
-		CPlayerPed *pPlayerPed = this->FindPlayerPed();
-		if(pPlayerPed)
-		{
-			ScriptCommand(&is_actor_near_point_3d, pPlayerPed->m_dwGTAId,
-				m_vecCheckpointPos.X, m_vecCheckpointPos.Y, m_vecCheckpointPos.Z,
-				m_vecCheckpointExtent.X, m_vecCheckpointExtent.Y, m_vecCheckpointExtent.Z, 1);
-
-			if(!m_dwCheckpointMarker)
-			{
-				m_dwCheckpointMarker = CreateRadarMarkerIcon(0, m_vecCheckpointPos.X,
-					m_vecCheckpointPos.Y, m_vecCheckpointPos.Z);
-			}
-		}
-	}
-	else if(m_dwCheckpointMarker)
-	{
-		DisableMarker(m_dwCheckpointMarker);
-		m_dwCheckpointMarker = 0;
-	}
-}
-
 void CGame::DisableMarker(uint32_t dwMarkerID)
 {
 	ScriptCommand(&disable_marker, dwMarkerID);
@@ -324,5 +301,95 @@ void CGame::ToggleCJWalk(bool toggle)
 	{
 		UnFuck(g_libGTASA+0x45477E);
 		NOP(g_libGTASA+0x45477E, 2);
+	}
+}
+
+void CGame::SetRaceCheckpointInformation(uint8_t byteType, VECTOR *pos, VECTOR *next, float fSize)
+{
+	memcpy(&m_vecRaceCheckpointPos, pos, sizeof(VECTOR));
+	memcpy(&m_vecRaceCheckpointNext, next, sizeof(VECTOR));
+	m_fRaceCheckpointSize = fSize;
+	m_byteRaceType = byteType;
+
+	if(m_dwRaceCheckpointMarker)
+	{
+		DisableMarker(m_dwRaceCheckpointMarker);
+		m_dwRaceCheckpointMarker = 0;
+
+		LOGI("CreateRadarMarkerIcon#2 %2.f %2.f %2.f", m_vecRaceCheckpointPos.X,
+					m_vecRaceCheckpointPos.Y, m_vecRaceCheckpointPos.Z);
+		m_dwRaceCheckpointMarker = CreateRadarMarkerIcon(0, m_vecRaceCheckpointPos.X, 
+			m_vecRaceCheckpointPos.Y, m_vecRaceCheckpointPos.Z);
+	}
+
+	MakeRaceCheckpoint();
+}
+
+void CGame::MakeRaceCheckpoint()
+{
+	DisableRaceCheckpoint();
+
+	ScriptCommand(&create_racing_checkpoint, (int)m_byteRaceType, 
+		m_vecRaceCheckpointPos.X, m_vecRaceCheckpointPos.Y, m_vecRaceCheckpointPos.Z,
+		m_vecRaceCheckpointNext.X, m_vecRaceCheckpointNext.Y, m_vecRaceCheckpointNext.Z,
+		m_fRaceCheckpointSize, &m_dwRaceCheckpointHandle);
+
+	m_bRaceCheckpointsEnabled = true;
+}
+
+void CGame::DisableRaceCheckpoint()
+{
+	if(m_dwRaceCheckpointHandle)
+	{
+		ScriptCommand(&destroy_racing_checkpoint, m_dwRaceCheckpointHandle);
+		m_dwRaceCheckpointHandle = 0;
+	}
+
+	m_bRaceCheckpointsEnabled = false;
+}
+
+void CGame::UpdateCheckpoints()
+{
+	if(m_bCheckpointsEnabled)
+	{
+		CPlayerPed *pPlayerPed = this->FindPlayerPed();
+		if(pPlayerPed)
+		{
+			ScriptCommand(&is_actor_near_point_3d, pPlayerPed->m_dwGTAId,
+				m_vecCheckpointPos.X, m_vecCheckpointPos.Y, m_vecCheckpointPos.Z,
+				m_vecCheckpointExtent.X, m_vecCheckpointExtent.Y, m_vecCheckpointExtent.Z, 1);
+
+			if(!m_dwCheckpointMarker)
+			{
+				m_dwCheckpointMarker = CreateRadarMarkerIcon(0, m_vecCheckpointPos.X,
+					m_vecCheckpointPos.Y, m_vecCheckpointPos.Z);
+			}
+		}
+	}
+	else if(m_dwCheckpointMarker)
+	{
+		DisableMarker(m_dwCheckpointMarker);
+		m_dwCheckpointMarker = 0;
+	}
+
+	if(m_bRaceCheckpointsEnabled)
+	{
+		CPlayerPed *pPlayerPed = this->FindPlayerPed();
+		if(pPlayerPed)
+		{
+			if (!m_dwRaceCheckpointMarker)
+			{
+				LOGI("CreateRadarMarkerIcon#1 %2.f %2.f %2.f", m_vecRaceCheckpointPos.X,
+					m_vecRaceCheckpointPos.Y, m_vecRaceCheckpointPos.Z);
+				m_dwRaceCheckpointMarker = CreateRadarMarkerIcon(0, m_vecRaceCheckpointPos.X,
+					m_vecRaceCheckpointPos.Y, m_vecRaceCheckpointPos.Z);
+			}
+		}
+	}
+	else if(m_dwRaceCheckpointMarker)
+	{
+		DisableMarker(m_dwRaceCheckpointMarker);
+		DisableRaceCheckpoint();
+		m_dwRaceCheckpointMarker = 0;
 	}
 }

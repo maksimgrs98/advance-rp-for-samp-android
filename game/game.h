@@ -11,6 +11,14 @@ private:
 	bool			m_bCheckpointsEnabled;
 	uint32_t		m_dwCheckpointMarker;
 
+	VECTOR			m_vecRaceCheckpointPos;
+	VECTOR			m_vecRaceCheckpointNext;
+	float			m_fRaceCheckpointSize;
+	uint8_t			m_byteRaceType;
+	bool			m_bRaceCheckpointsEnabled;
+	uint32_t		m_dwRaceCheckpointMarker;
+	uint32_t		m_dwRaceCheckpointHandle;
+
 public:
 	CGame();
 	~CGame();
@@ -46,6 +54,11 @@ public:
 	void UpdateCheckpoints();
 	void ToggleCheckpoint(bool bEnabled) { m_bCheckpointsEnabled = bEnabled; };
 	void SetCheckpointInformation(VECTOR *pos, VECTOR *extent);
+
+	void MakeRaceCheckpoint();
+	void DisableRaceCheckpoint();
+	void ToggleRaceCheckpoints(bool bEnabled) { m_bRaceCheckpointsEnabled = bEnabled; };
+	void SetRaceCheckpointInformation(uint8_t byteType, VECTOR *pos, VECTOR *next, float fSize);
 
 	uint32_t CreateRadarMarkerIcon(int iMarkerType, float fX, float fY, float fZ, int iColor = 201);
 	void DisableMarker(uint32_t dwMarkerID);

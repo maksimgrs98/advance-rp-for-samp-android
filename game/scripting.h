@@ -71,3 +71,5 @@ const SCRIPT_COMMAND lock_actor							= { 0x04d7, "ii" };
 const SCRIPT_COMMAND is_model_available					= { 0x0248, "i" };
 const SCRIPT_COMMAND request_model						= { 0x0247, "i" };
 const SCRIPT_COMMAND load_requested_models				= { 0x038B, "" };
+const SCRIPT_COMMAND create_racing_checkpoint			= { 0x06d5,	"ifffffffv"};
+const SCRIPT_COMMAND destroy_racing_checkpoint			= { 0x06d6,	"i" };
