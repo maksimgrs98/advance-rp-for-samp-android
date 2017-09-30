@@ -521,7 +521,7 @@ void ScrSetObjectPos(RPCParameters *rpcParams)
 
 	uint16_t wObjectID;
 	float fRotation;
-	VECTOR vecPos;
+	VECTOR vecPos, vecRot;
 	RakNet::BitStream bsData(Data,(iBitLength/8)+1,false);
 	bsData.Read(wObjectID);
 	bsData.Read(vecPos.X);
@@ -529,12 +529,15 @@ void ScrSetObjectPos(RPCParameters *rpcParams)
 	bsData.Read(vecPos.Z);
 	bsData.Read(fRotation);
 
-	LOGI("id: %d x: %.2f y: %.2f z: %.2f rot: %f", wObjectID, vecPos.X, vecPos.Y, vecPos.Z, fRotation);
+	LOGI("id: %d x: %.2f y: %.2f z: %.2f", wObjectID, vecPos.X, vecPos.Y, vecPos.Z);
+	//LOGI("VecRot x: %.2f y: %.2f z: %.2f", vecRot.X, vecRot.Y, vecRot.Z);
 
 	CObjectPool*	pObjectPool =	pNetGame->GetObjectPool();
 	CObject*		pObject		=	pObjectPool->GetAt(wObjectID);
 	if(pObject)
-		pObject->TeleportTo(vecPos.X, vecPos.Y, vecPos.Z);
+	{
+		pObject->SetPos(vecPos.X, vecPos.Y, vecPos.Z);
+	}
 }
 
 void ScrTogglePlayerControllable(RPCParameters *rpcParams)

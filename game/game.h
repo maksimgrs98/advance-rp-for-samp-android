@@ -60,5 +60,5 @@ public:
 	if(m_pGamePlayer==NULL)	m_pGamePlayer = new CPlayerPed();
 	return m_pGamePlayer; };
 
-	uint32_t CreatePickup(int iModel, int iType, float fX, float fY, float fZ);
+	uint32_t CreatePickup(int iModel, int iType, float fX, float fY, float fZ, int *unk);
 };

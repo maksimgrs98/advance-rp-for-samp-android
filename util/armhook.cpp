@@ -23,7 +23,7 @@ void NOP(uintptr_t dest, size_t size)
     }
 
     //cacheflush(dest, dest+size, 0);
-    __builtin___clear_cache((void*)dest, (void*)(dest+size*2));
+    __builtin___clear_cache((char*)dest, (char*)(dest+size*2));
 }
 
 void WriteMemory(uintptr_t dest, const char* src, size_t size)
@@ -31,7 +31,7 @@ void WriteMemory(uintptr_t dest, const char* src, size_t size)
     mprotect((void*)(dest & 0xFFFFF000), PAGESIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
     memcpy((void*)dest, (void*)src, size);
     //cacheflush(dest, dest+size, 0);
-    __builtin___clear_cache((void*)dest, (void*)(dest+size));
+    __builtin___clear_cache((char*)dest, (char*)(dest+size));
 }
 
 void ReadMemory(uintptr_t dest, uintptr_t src, size_t size)

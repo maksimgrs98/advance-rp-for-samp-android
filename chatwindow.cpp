@@ -74,7 +74,7 @@ void CChatWindow::AddDebugMessage(char *szFormat, ...)
 
 void CChatWindow::AddClientMessage(uint32_t uColor, char* szStr)
 {
-	uColor = (uColor >> 8) | 0xFF000000; // convert to ARGB
+	//uColor = (uColor >> 8) | 0xFF000000; // convert to ARGB
 
 	FilterInvalidChars(szStr);
 	AddToChatWindowBuffer(CHAT_TYPE_INFO,szStr,0,uColor,0);

@@ -20,6 +20,8 @@ uint32_t dwCurPlayerActor = 0;
 uint8_t byteCurPlayer = 0;
 uint8_t byteCurDriver = 0;
 
+uint32_t dwParam1;
+
 bool state = true;
 void tst()
 {
@@ -645,7 +647,17 @@ extern "C" uintptr_t get_enter_func_ptr() {
  	(*CTaskComplexLeaveCar)(thiz, pVehicle, iTargetDoor, iDelayTime, bSensibleLeaveCar, bForceGetOut);
  }
  
-uint32_t dwParam1;
+extern "C" void pickup_ololo()
+{
+	if(pNetGame && pNetGame->GetPickupPool())
+	{
+		LOGI("dwParam1 = %d", dwParam1);
+		LOGI("PickupID = %d", ((dwParam1-(g_libGTASA+0x70E264))/0x20) );
+		CPickupPool *pPickups = pNetGame->GetPickupPool();
+		pPickups->PickedUp( ((dwParam1-(g_libGTASA+0x70E264))/0x20) );
+	}
+}
+
 void __attribute__((naked))PickupPickUp_hook()
 {
 	//LOGI("PickupPickUp_hook");
@@ -666,13 +678,15 @@ void __attribute__((naked))PickupPickUp_hook()
 	__asm__ volatile("push {r0-r11, lr}\n\t"
 					"mov %0, r4" : "=r" (dwParam1));
 	
-	LOGI("dwParam1 = %d", dwParam1);
-	LOGI("PickupID = %d", ((dwParam1-(g_libGTASA+0x70E264))/0x20) );
-	if(pNetGame && pNetGame->GetPickupPool())
-	{
-		CPickupPool *pPickups = pNetGame->GetPickupPool();
-		pPickups->PickedUp( ((dwParam1-(g_libGTASA+0x70E264))/0x20) );
-	}
+	//LOGI("dwParam1 = %d", dwParam1);
+	//LOGI("PickupID = %d", ((dwParam1-(g_libGTASA+0x70E264))/0x20) );
+	//if(pNetGame && pNetGame->GetPickupPool())
+	//{
+	//	CPickupPool *pPickups = pNetGame->GetPickupPool();
+	//	pPickups->PickedUp( ((dwParam1-(g_libGTASA+0x70E264))/0x20) );
+	//}
+	__asm__ volatile("blx pickup_ololo\n\t");
+
 
 	__asm__ volatile("pop {r0-r11, lr}\n\t");
 

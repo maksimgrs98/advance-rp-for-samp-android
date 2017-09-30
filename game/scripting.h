@@ -68,3 +68,6 @@ const SCRIPT_COMMAND set_actor_immunities				= { 0x02ab, "iiiiii" };
 const SCRIPT_COMMAND is_pickup_picked_up				= { 0x0214, "i" };
 const SCRIPT_COMMAND toggle_player_controllable 		= { 0x01B4, "ii" };
 const SCRIPT_COMMAND lock_actor							= { 0x04d7, "ii" };
+const SCRIPT_COMMAND is_model_available					= { 0x0248, "i" };
+const SCRIPT_COMMAND request_model						= { 0x0247, "i" };
+const SCRIPT_COMMAND load_requested_models				= { 0x038B, "" };

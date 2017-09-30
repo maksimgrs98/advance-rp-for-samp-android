@@ -259,21 +259,31 @@ int CGame::GetLocalMoney()
 {
 	// допилить
 	//return *(int*)(g_libGTASA)
+	return 0;
 }
 
-uint32_t CGame::CreatePickup(int iModel, int iType, float fX, float fY, float fZ)
+uint32_t CGame::CreatePickup(int iModel, int iType, float fX, float fY, float fZ, int* unk)
 {
+	LOGI("CreatePickup(%d, %d, %4.f, %4.f, %4.f)", iModel, iType, fX, fY, fZ);
+
 	uint32_t hnd;
 
-	LOGI("CreatePickup: %d, %d, %3.f, %3.f, %3.f", iModel, iType, fX, fY, fZ);
+	if(!IsValidModel(iModel)) iModel = 18631;
 
-	if(!IsModelLoaded(iModel))
+	if(!ScriptCommand(&is_model_available, iModel))
 	{
-		RequestModel(iModel);
-		LoadRequestedModels();
+		ScriptCommand(&request_model, iModel);
+		ScriptCommand(&load_requested_models);
+		while(!ScriptCommand(&is_model_available, iModel))
+			usleep(1000);
 	}
 
 	ScriptCommand(&create_pickup, iModel, iType, fX, fY, fZ, &hnd);
+
+	int lol = 32 * (uint16_t)hnd;
+	if(lol) lol /= 32;
+	if(unk) *unk = lol;
+
 	return hnd;
 }
 

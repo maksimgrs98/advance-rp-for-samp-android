@@ -15,6 +15,7 @@ public:
 	void Process(float fElapsedTime);
 	float DistanceRemaining(MATRIX4X4 *matPos);
 
+	void SetPos(float x, float y, float z);
 	void MoveTo(float x, float y, float z, float speed);
 
 	void InstantRotate(float x, float y, float z);

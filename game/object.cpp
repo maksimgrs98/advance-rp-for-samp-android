@@ -45,6 +45,11 @@ float CObject::DistanceRemaining(MATRIX4X4 *matPos)
 	return (float)sqrt(fSX + fSY + fSZ);
 }
 
+void CObject::SetPos(float x, float y, float z)
+{
+	ScriptCommand(&put_object_at, m_dwGTAId, x, y, z);
+}
+
 void CObject::MoveTo(float X, float Y, float Z, float speed)
 {
 	m_matTarget.pos.X = X;

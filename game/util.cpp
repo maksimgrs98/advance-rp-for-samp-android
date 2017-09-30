@@ -724,7 +724,7 @@ uint8_t FindPlayerNumFromPedPtr(uint32_t dwPedPtr)
 ENTITY_TYPE *GamePool_Object_GetAt(int iID)
 {
 	ENTITY_TYPE* (*GetPoolObj)(int iID);
-	*(void **) (&GetPoolObj) = (void*)g_libGTASA+0x41DDB4+1;
+	*(void **) (&GetPoolObj) = (void*)(g_libGTASA+0x41DDB4+1);
 	return (GetPoolObj)(iID);
 } 
 

@@ -8,6 +8,7 @@ extern CChatWindow *pChatWindow;
 #define AUTH_BS "1031CA8429843C9B8C178B65F3C73602578440D17F8"
 
 int iVehiclePoolProcessFlag = 0;
+int iPickupPoolProcessFlag = 0;
 
 CNetGame::CNetGame(char *szHostOrIp, int iPort, char* szPlayerName, char *szPass)
 {
@@ -106,6 +107,15 @@ void CNetGame::Process()
 		}
 		else
 			iVehiclePoolProcessFlag++;
+
+		if(m_pPickupPool && iPickupPoolProcessFlag > 5)
+		{
+			m_pPickupPool->Process();
+			iPickupPoolProcessFlag = 0;
+		}
+		else
+			++iPickupPoolProcessFlag;
+
 	}
 	else
 	{
