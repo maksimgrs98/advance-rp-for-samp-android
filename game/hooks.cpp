@@ -68,6 +68,7 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 			LOGI("Loading main.scm");
 			sprintf(path, "%sSAMP/main.scm", storage);
 			st[1] = (uint32_t)fopen(path, "rb");
+			LOGI("File handle: 0x%X", st[1]);
 			return (uintptr_t)st;
 	}
 
@@ -76,6 +77,7 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 			LOGI("Loading SCRIPT.IMG");
 			sprintf(path, "%sSAMP/SCRIPT.IMG", storage);
 			st[1] = (uint32_t)fopen(path, "rb");
+			LOGI("File handle: 0x%X", st[1]);
 			return (uintptr_t)st;
 	}
 
@@ -84,6 +86,7 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		LOGI("Loading DEFAULT.DAT");
 		sprintf(path, "%sSAMP/DEFAULT.DAT", storage);
 		st[1] = (uint32_t)fopen(path, "rb");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
 	}
 
@@ -92,6 +95,7 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		LOGI("Loading PEDS.IDE");
 		sprintf(path, "%sSAMP/PEDS.IDE", storage);
 		st[1] = (uint32_t)fopen(path, "r");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
 	}
 	
@@ -100,30 +104,34 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		LOGI("Loading VEHICLES.IDE");
 		sprintf(path, "%sSAMP/VEHICLES.IDE", storage);
 		st[1] = (uint32_t)fopen(path, "rb");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
 	}
 
-	if(!strcmp(v2+11, "tracks2.dat"))
+	/*if(!strcmp(v2+11, "tracks2.dat"))
 	{
 		LOGI("Loading tracks2.dat");
 		sprintf(path, "%sSAMP/tracks2.dat", storage);
 		st[1] = (uint32_t)fopen(path, "rb");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
-	}
+	}*/
 
-	if(!strcmp(v2+11, "tracks4.dat"))
+	/*if(!strcmp(v2+11, "tracks4.dat"))
 	{
 		LOGI("Loading tracks4.dat");
 		sprintf(path, "%sSAMP/tracks4.dat", storage);
 		st[1] = (uint32_t)fopen(path, "rb");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
-	}
+	}*/
 
 	if(!strcmp(v2+5, "CUSTOM.IMG"))
 	{
 		LOGI("Loading CUSTOM.IMG");
 		sprintf(path, "%sSAMP/CUSTOM.IMG", storage);
 		st[1] = (uint32_t)fopen(path, "rb");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
 	}
 
@@ -132,6 +140,7 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		LOGI("Loading SAMP.IMG");
 		sprintf(path, "%sSAMP/SAMP.IMG", storage);
 		st[1] = (uint32_t)fopen(path, "rb");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
 	}
 
@@ -140,6 +149,7 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		LOGI("Loading GTA.DAT");
 		sprintf(path, "%sSAMP/GTA.DAT", storage);
 		st[1] = (uint32_t)fopen(path, "rb");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
 	}
 
@@ -148,6 +158,7 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		LOGI("Loading samp.IDE");
 		sprintf(path, "%sSAMP/samp.IDE", storage);
 		st[1] = (uint32_t)fopen(path, "rb");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
 	}
 
@@ -156,6 +167,7 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		LOGI("Loading custom.IDE");
 		sprintf(path, "%sSAMP/custom.IDE", storage);
 		st[1] = (uint32_t)fopen(path, "rb");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
 	}
 
@@ -164,6 +176,7 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		LOGI("Loading %s", v2);
 		sprintf(path, "%sSAMP/%s", storage, v2);
 		st[1] = (uint32_t)fopen(path, "rb");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
 	}
 
@@ -172,6 +185,7 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		LOGI("Loading RussianFont.met");
 		sprintf(path, "%sSAMP/font/samp.met", storage);
 		st[1] = (uint32_t)fopen(path, "r");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
 	}
 
@@ -180,6 +194,7 @@ uintptr_t NvFOpen_hook(const char* v1, const char* v2, uint32_t v3, uint32_t v4)
 		LOGI("Loading RussianFont.png");
 		sprintf(path, "%sSAMP/font/samp.png", storage);
 		st[1] = (uint32_t)fopen(path, "rb");
+		LOGI("File handle: 0x%X", st[1]);
 		return (uintptr_t)st;
 	}
 	

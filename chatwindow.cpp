@@ -19,11 +19,11 @@ CChatWindow::~CChatWindow()
 
 void CChatWindow::Draw()
 {
-	float x = 220.0f;
+	float x = 325.0f;
 	float y = 25.0f;
 	int len = 0;
 
-	for(int i = 4; i >= 0; i--)
+	for(int i = 5; i >= 0; i--)
 	{
 		switch(m_ChatWindowEntries[i].eType)
 		{
@@ -36,7 +36,7 @@ void CChatWindow::Draw()
 				}
 
 				RenderText(m_ChatWindowEntries[i].szMessage, x, y, m_ChatWindowEntries[i].uTextColor);
-				x = 220.0f;
+				x = 325.0f;
 
 				break;
 			case CHAT_TYPE_INFO:
@@ -44,17 +44,19 @@ void CChatWindow::Draw()
 				RenderText(m_ChatWindowEntries[i].szMessage, x, y, m_ChatWindowEntries[i].uTextColor);
 				break;
 		}
-		y += 20.0f;
+		y += 30.0f;
 	}
 }
 
 void CChatWindow::RenderText(uint16_t *sz, float x, float y, uint32_t uColor)
 {
+	// 1920x1080
 	CFont::SetOrientation(1);
 	CFont::SetProportional(1);
 	CFont::SetFontStyle(FONT_SUBTITLES);
+	CFont::SetWrapx(1920);
 	CFont::SetColor((uint8_t*)&uColor);
-	CFont::SetScale(1.22f);
+	CFont::SetScale(2.0f);
 	CFont::PrintString(x, y, sz);
 }
 

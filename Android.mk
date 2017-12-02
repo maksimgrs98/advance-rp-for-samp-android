@@ -12,6 +12,7 @@ FILE_LIST += $(wildcard $(LOCAL_PATH)/game/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/net/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/gui/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/gui/imgui/*.cpp)
+FILE_LIST += $(wildcard $(LOCAL_PATH)/RenderWare/*.cpp)
 LOCAL_SRC_FILES += $(FILE_LIST:$(LOCAL_PATH)/%=%)
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/RakNet/SAMP
 

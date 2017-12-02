@@ -1,4 +1,5 @@
 #include "main.h"
+#include "RenderWare/RenderWare.h"
 #include "jni.h"
 #include <pthread.h>
 #include <dlfcn.h>
@@ -80,6 +81,7 @@ jint JNI_OnLoad(JavaVM *vm, void *reserved)
 	LOGI("libGTASA.so imagebase address 0x%X", g_libGTASA);
 	
 	InitHookStuff();
+	InitRenderWareFunctions();
 
 	pthread_t thread;
 	pthread_create(&thread, 0, Init, 0);
