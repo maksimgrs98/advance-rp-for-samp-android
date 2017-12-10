@@ -30,6 +30,9 @@ void ApplyInGamePatches()
 	// CTaskSimplePlayerOnFoot::PlayIdleAnimations 
 	WriteMemory(g_libGTASA+0x4BDB18, "\x70\x47", 2);
 
+	// DoFade()
+	WriteMemory(g_libGTASA+0x39A4B4, "\x70\x47", 2);
+
 	// interior peds
 	UnFuck(g_libGTASA+0x2C2C22);
 	NOP(g_libGTASA+0x2C2C22, 4);

@@ -2,7 +2,7 @@
 
 #define MAX_MESSAGE_LENGTH 		128
 #define MAX_LINE_LENGTH			MAX_MESSAGE_LENGTH/2
-#define MAX_MESSAGES			50
+#define MAX_MESSAGES			100
 
 enum eChatMessageType
 {
@@ -15,10 +15,10 @@ enum eChatMessageType
 typedef struct _CHAT_WINDOW_ENTRY
 {
 	eChatMessageType eType;
-	uint16_t szMessage[MAX_MESSAGE_LENGTH+1];
-	uint16_t szNick[MAX_PLAYER_NAME+1];
-	uint32_t uTextColor;
-	uint32_t uNickColor;
+	char 		szMessageUtf8[MAX_MESSAGE_LENGTH*4];
+	char		szNick[MAX_PLAYER_NAME+1];
+	uint32_t	dwTextColor;
+	uint32_t	dwNickColor;
 } CHAT_WINDOW_ENTRY;
 
 class CChatWindow
@@ -31,7 +31,6 @@ public:
 	void AddToChatWindowBuffer(eChatMessageType eType, char* szString, char* szNick, uint32_t uTextColor, uint32_t uNickColor);
 
 	void Draw();
-	void RenderText(uint16_t *sz, float x, float y, uint32_t uColor);
 
 	void AddChatMessage(char *szNick, uint32_t dwNickColor, char *szMessage);
 	void AddInfoMessage(char *szFormat, ...);
@@ -39,10 +38,9 @@ public:
 	void AddClientMessage(uint32_t dwColor, char* szStr);
 
 private:
-	void PushBack();
-	CHAT_WINDOW_ENTRY m_ChatWindowEntries[MAX_MESSAGES];
+	std::list<CHAT_WINDOW_ENTRY> m_ChatWindowEntriesList;
 
-	uint32_t m_uChatTextColor;
-	uint32_t m_uChatInfoColor;
-	uint32_t m_uChatDebugColor;
+	uint32_t m_dwChatTextColor;
+	uint32_t m_dwChatInfoColor;
+	uint32_t m_dwChatDebugColor;
 };

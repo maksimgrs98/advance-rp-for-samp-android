@@ -252,7 +252,7 @@ struct RwRaster
 #define RwRasterGetParent(_raster)                  \
     RwRasterGetParentMacro(_raster)
 
-extern RwRaster (*RwRasterCreate)(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags);
+extern RwRaster* (*RwRasterCreate)(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags);
 extern RwBool (*RwRasterDestroy)(RwRaster * raster);
 
 extern RwRaster* (*RwRasterGetOffset)(RwRaster *raster, 
@@ -414,3 +414,21 @@ struct RwBBox
     RwV3d sup;   /**< Supremum vertex. */
     RwV3d inf;   /**< Infimum vertex. */
 };
+
+/****************************************************************************
+ Function prototypes
+ */
+ /* Images from rasters */
+extern RwImage* (*RwImageSetFromRaster)(RwImage *image, RwRaster *raster);
+
+/* Rasters from images */
+extern RwRaster* (*RwRasterSetFromImage)(RwRaster *raster, RwImage *image);
+
+/* Read a raster */
+extern RwRaster* (*RwRasterRead)(const RwChar *filename);
+extern RwRaster* (*RwRasterReadMaskedRaster)(const RwChar *filename, const RwChar *maskname);
+
+/* Finding appropriate raster formats */
+extern RwImage* (*RwImageFindRasterFormat)(RwImage *ipImage,RwInt32 nRasterType,
+                                        RwInt32 *npWidth,RwInt32 *npHeight,
+                                        RwInt32 *npDepth,RwInt32 *npFormat);

@@ -46,7 +46,7 @@ CNetGame::CNetGame(char *szHostOrIp, int iPort, char* szPlayerName, char *szPass
 	pGame->EnableZoneNames(false);
 
 	if(pChatWindow) 
-		pChatWindow->AddDebugMessage("SA-MP 0.3.7-4 Initialized");
+		pChatWindow->AddDebugMessage("{FFFFFF}SA-MP {B9C9BF}0.3.7.{FF00FF}47 {FFFFFF}Started");
 }
 
 CNetGame::~CNetGame()

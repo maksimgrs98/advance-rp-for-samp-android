@@ -14,3 +14,5 @@ struct RsGlobalType
 };
 
 void InitRenderWareFunctions();
+
+extern RsGlobalType* RsGlobal;

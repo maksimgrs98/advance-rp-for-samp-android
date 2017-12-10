@@ -237,35 +237,26 @@ typedef enum RwPlaneType RwPlaneType;
 /****************************************************************************
  Global Types
  */
-typedef struct RwOpenGLVertex RwOpenGLVertex;
-struct RwOpenGLVertex
+typedef struct RwD3D9Vertex RwD3D9Vertex;
+/**
+ * \ingroup rwcoredriverd3d9
+ * \struct RwD3D9Vertex
+ * D3D9 vertex structure definition for 2D geometry
+ */
+struct RwD3D9Vertex
 {
-    float           x;      /**< X positional component */
-    
-    float           y;      /**< Y positional component */
-    
-    float           z;      /**< Z positional component */
+    RwReal      x;              /**< Screen X */
+    RwReal      y;              /**< Screen Y */
+    RwReal      z;              /**< Screen Z */
+    RwReal      rhw;            /**< Reciprocal of homogeneous W */
 
-    unsigned char   r;      /**< 8-bit red color component */
-    
-    unsigned char   g;      /**< 8-bit green color component */
-    
-    unsigned char   b;      /**< 8-bit blue color component */
-    
-    unsigned char   a;      /**< 8-bit alpha component */
+    RwUInt32    emissiveColor;  /**< Vertex color */
 
-    float           sow;    /**< Perspective-correct U texture coordinate */
-    
-    float           tow;    /**< Perspective-correct V texture coordinate */
-    
-    float           row;    /**< Internal use only */
-    
-    float           oow;    /**< Texture perspective correction */
-    
-    float           recpz;  /**< Reciprocal Z component */
+    RwReal      u;              /**< Texture coordinate U */
+    RwReal      v;              /**< Texture coordinate V */
 };
 
-typedef RwOpenGLVertex	RwIm2DVertex;
+typedef RwD3D9Vertex    RwIm2DVertex;
 typedef RwUInt32        RxVertexIndex;
 typedef RxVertexIndex   RwImVertexIndex;
 

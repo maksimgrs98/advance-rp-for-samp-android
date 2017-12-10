@@ -1,69 +1,86 @@
 #include "main.h"
+#include "imgui.h"
+#include "RenderWare/RenderWare.h"
+#include "gui/renderware_imgui.h"
 
 extern CGame *pGame;
 
+#define CHAT_POS_X		0.169270f // 325
+#define CHAT_POS_Y		0.023148f // 25
+#define CHAT_SIZE_X		0.598958f // 1150
+#define CHAT_SIZE_Y		0.203703f // 220
+
 CChatWindow::CChatWindow()
 {
-	for(int x =0; x < MAX_MESSAGES; x++)
-		memset(&m_ChatWindowEntries[x], 0, sizeof(CHAT_WINDOW_ENTRY));
-
-	m_uChatTextColor = 0xFFFFFFFF;
-	m_uChatInfoColor = 0xFFFFFFFF;
-	m_uChatDebugColor = 0x0000FFFF;
+	m_dwChatTextColor 	= 0xFFFFFFFF;
+	m_dwChatInfoColor 	= 0x00C8C8FF;
+	m_dwChatDebugColor 	= 0xBEBEBEFF;
 }
 
-CChatWindow::~CChatWindow()
-{
-
-}
+CChatWindow::~CChatWindow(){}
 
 void CChatWindow::Draw()
 {
-	float x = 325.0f;
-	float y = 25.0f;
-	int len = 0;
+	// 1920x1080
+	ImGui::Begin("Chat Window", (bool*)true, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+	ImGui::SetWindowPos(ImVec2(CHAT_POS_X*RsGlobal->maximumWidth, CHAT_POS_Y*RsGlobal->maximumHeight));
+	ImGui::SetWindowSize(ImVec2(CHAT_SIZE_X*RsGlobal->maximumWidth, CHAT_SIZE_Y*RsGlobal->maximumHeight));
 
-	for(int i = 5; i >= 0; i--)
+	std::list<CHAT_WINDOW_ENTRY>::iterator it = m_ChatWindowEntriesList.begin();
+	while(it != m_ChatWindowEntriesList.end())
 	{
-		switch(m_ChatWindowEntries[i].eType)
+		switch(it->eType)
 		{
 			case CHAT_TYPE_CHAT:
-				len = CFont::GxtCharStrlen(m_ChatWindowEntries[i].szNick);
-
-				if (len) {
-					RenderText(m_ChatWindowEntries[i].szNick, x, y, m_ChatWindowEntries[i].uNickColor);
-					x += 10 + CFont::GetStringWidth(m_ChatWindowEntries[i].szNick, 0, 0);
+				if(it->szNick[0] != 0)
+				{
+					ImGui::TextColored(ImColor(it->dwNickColor), "%s", it->szNick);
+					ImGui::SameLine();
 				}
+				ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(it->dwTextColor));
+				ImGuiPlus::TextWithColors("%s", it->szMessageUtf8);
+				ImGui::PopStyleColor();
+			break;
 
-				RenderText(m_ChatWindowEntries[i].szMessage, x, y, m_ChatWindowEntries[i].uTextColor);
-				x = 325.0f;
-
-				break;
 			case CHAT_TYPE_INFO:
 			case CHAT_TYPE_DEBUG:
-				RenderText(m_ChatWindowEntries[i].szMessage, x, y, m_ChatWindowEntries[i].uTextColor);
-				break;
+				ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor(it->dwTextColor));
+				ImGuiPlus::TextWithColors("%s", it->szMessageUtf8);
+				ImGui::PopStyleColor();
+			break;
 		}
-		y += 30.0f;
+
+		it++;
 	}
+
+	ImGui::SetScrollHere();
+	ImGui::End();
 }
 
-void CChatWindow::RenderText(uint16_t *sz, float x, float y, uint32_t uColor)
+void CChatWindow::AddChatMessage(char *szNick, uint32_t dwNickColor, char *szMessage)
 {
-	// 1920x1080
-	CFont::SetOrientation(1);
-	CFont::SetProportional(1);
-	CFont::SetFontStyle(FONT_SUBTITLES);
-	CFont::SetWrapx(1920);
-	CFont::SetColor((uint8_t*)&uColor);
-	CFont::SetScale(2.0f);
-	CFont::PrintString(x, y, sz);
+	FilterInvalidChars(szMessage);
+	AddToChatWindowBuffer(CHAT_TYPE_CHAT, szMessage, szNick, m_dwChatTextColor, dwNickColor);
+}
+
+void CChatWindow::AddInfoMessage(char *szFormat, ...)
+{
+	char tmp_buffer[512];
+	memset(tmp_buffer, 0, 512);
+
+	va_list args;
+	va_start(args, szFormat);
+	vsprintf(tmp_buffer, szFormat, args);
+	va_end(args);
+
+	FilterInvalidChars(tmp_buffer);
+	AddToChatWindowBuffer(CHAT_TYPE_INFO, tmp_buffer, 0, m_dwChatInfoColor, 0);
 }
 
 void CChatWindow::AddDebugMessage(char *szFormat, ...)
 {
 	char tmp_buf[512];
-	memset(tmp_buf, 0, 512);
+	memset(tmp_buf,0,512);
 
 	va_list args;
 	va_start(args, szFormat);
@@ -71,24 +88,14 @@ void CChatWindow::AddDebugMessage(char *szFormat, ...)
 	va_end(args);
 
 	FilterInvalidChars(tmp_buf);
-	AddToChatWindowBuffer(CHAT_TYPE_DEBUG, tmp_buf, 0, m_uChatDebugColor, 0);
+	AddToChatWindowBuffer(CHAT_TYPE_DEBUG, tmp_buf, 0, m_dwChatDebugColor, 0);
+	LOGI("DEBUG: %s", tmp_buf);
 }
 
-void CChatWindow::AddClientMessage(uint32_t uColor, char* szStr)
+void CChatWindow::AddClientMessage(uint32_t dwColor, char* szStr)
 {
-	//uColor = (uColor >> 8) | 0xFF000000; // convert to ARGB
-
 	FilterInvalidChars(szStr);
-	AddToChatWindowBuffer(CHAT_TYPE_INFO,szStr,0,uColor,0);
-}
-
-void CChatWindow::AddChatMessage(char *szNick, uint32_t uNickColor, char *szMessage)
-{
-	FilterInvalidChars(szMessage);
-
-	if(strlen(szMessage) > MAX_MESSAGE_LENGTH) return;
-
-	AddToChatWindowBuffer(CHAT_TYPE_CHAT,szMessage,szNick,m_uChatTextColor,uNickColor);
+	AddToChatWindowBuffer(CHAT_TYPE_INFO, szStr, 0, dwColor, 0);
 }
 
 void CChatWindow::FilterInvalidChars(char* szString)
@@ -102,79 +109,30 @@ void CChatWindow::FilterInvalidChars(char* szString)
 	}
 }
 
-
-inline void CChatWindow::PushBack()
+void CChatWindow::AddToChatWindowBuffer(eChatMessageType eType, char* szString, 
+										char* szNick, uint32_t dwTextColor, uint32_t dwNickColor)
 {
-	for (int x = MAX_MESSAGES-1; x; x--)
-		memcpy(&m_ChatWindowEntries[x],&m_ChatWindowEntries[x-1],sizeof(CHAT_WINDOW_ENTRY));
-}
+	RGBA_ABGR(dwTextColor);
+	RGBA_ABGR(dwNickColor);
 
-void CChatWindow::AddToChatWindowBuffer(eChatMessageType eType, 
-										char *szString, 
-										char *szNick, 
-										uint32_t 
-										uTextColor, 
-										uint32_t uNickColor)
-{
-	PushBack();
+	CHAT_WINDOW_ENTRY ChatWindowEntry;
 
-	m_ChatWindowEntries[0].eType = eType;
-	m_ChatWindowEntries[0].uTextColor = uTextColor;
-	m_ChatWindowEntries[0].uNickColor = uNickColor;
-	RGBA_ABGR(m_ChatWindowEntries[0].uTextColor);
-	RGBA_ABGR(m_ChatWindowEntries[0].uNickColor);
+	ChatWindowEntry.eType = eType;
+	ChatWindowEntry.dwTextColor = dwTextColor;
+	ChatWindowEntry.dwNickColor = dwNickColor;
 
 	if(szNick)
 	{
-		int len = strlen(szNick);
-		char temp[len+2];
-		strcpy(temp, szNick);
-		strcat(temp, ":");
-		CFont::AsciiToGxtChar(temp, m_ChatWindowEntries[0].szNick);
+		strcpy(ChatWindowEntry.szNick, szNick);
+		strcat(ChatWindowEntry.szNick, ":");
 	}
 	else
-		m_ChatWindowEntries[0].szNick[0] = 0;
+		ChatWindowEntry.szNick[0] = '\0';
 
-	if(m_ChatWindowEntries[0].eType == CHAT_TYPE_CHAT && strlen(szString) > MAX_LINE_LENGTH)
-	{
-		int iBestLineLength = MAX_LINE_LENGTH;
-		// see if we can locate a space.
-		while(szString[iBestLineLength] != ' ' && iBestLineLength)
-			iBestLineLength--;
+	ImGuiPlus::cp1251_to_utf8(ChatWindowEntry.szMessageUtf8, szString);
 
-		if((MAX_LINE_LENGTH - iBestLineLength) > 12) {
-			// we should just take the whole line
-			char temp[MAX_LINE_LENGTH+1];
-			strncpy(temp,szString,MAX_LINE_LENGTH);
-			temp[MAX_LINE_LENGTH] = '\0';
-			CFont::AsciiToGxtChar(temp, m_ChatWindowEntries[0].szMessage);
+	if(m_ChatWindowEntriesList.size() > MAX_MESSAGES)
+		m_ChatWindowEntriesList.pop_front();
 
-			PushBack();
-
-			m_ChatWindowEntries[0].eType = eType;
-			m_ChatWindowEntries[0].uTextColor = uTextColor;
-			m_ChatWindowEntries[0].uNickColor = uNickColor;
-			m_ChatWindowEntries[0].szNick[0] = 0;
-
-			CFont::AsciiToGxtChar(szString+MAX_LINE_LENGTH, m_ChatWindowEntries[0].szMessage);
-		}
-		else {
-			// grab upto the found space.
-			char temp[iBestLineLength+1];
-			strncpy(temp,szString,iBestLineLength);
-			temp[iBestLineLength] = '\0';
-			CFont::AsciiToGxtChar(temp, m_ChatWindowEntries[0].szMessage);
-
-			PushBack();
-
-			m_ChatWindowEntries[0].eType = eType;
-			m_ChatWindowEntries[0].uTextColor = uTextColor;
-			m_ChatWindowEntries[0].uNickColor = uNickColor;
-			m_ChatWindowEntries[0].szNick[0] = 0;
-
-			CFont::AsciiToGxtChar(szString+(iBestLineLength+1), m_ChatWindowEntries[0].szMessage);
-		}
-	}
-	else
-		CFont::AsciiToGxtChar(szString, m_ChatWindowEntries[0].szMessage);
+	m_ChatWindowEntriesList.push_back(ChatWindowEntry);
 }

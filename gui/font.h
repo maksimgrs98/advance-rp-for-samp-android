@@ -1,6 +1,7 @@
 #pragma once
 
-#define  RGBA_ABGR(color) color = ((color << 24) | ((color << 8) & 0x00FF0000) | ((color >> 8) & 0x0000FF00) | (color >> 24))
+#define RGBA_ABGR(color) color = ((color << 24) | ((color << 8) & 0x00FF0000) | ((color >> 8) & 0x0000FF00) | (color >> 24))
+#define ARGB_RGBA(color) color = (color << 8 | color >> 24)
 
 enum eFontStyle : uint8_t
 {

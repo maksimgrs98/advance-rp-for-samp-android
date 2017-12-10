@@ -7,6 +7,10 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 
+// imgui
+#include "imgui.h"
+#include "gui/renderware_imgui.h"
+
 extern CChatWindow *pChatWindow;
 extern CNetGame *pNetGame;
 extern CGame *pGame;
@@ -41,9 +45,6 @@ void Render2dStuff_hook()
 		pNetGame->Process();
 
 	DrawPlayerTags();
-
-	if(pChatWindow)
-		pChatWindow->Draw();
 
 	if(state == false)
 	{
@@ -714,10 +715,45 @@ void __attribute__((naked))PickupPickUp_hook()
 }
 
 
+// 0x40C6B8
+void (*Initialize3D)(uintptr_t a1);
+void Initialize3D_hook(uintptr_t a1)
+{
+	LOGI("Initialize3D called");
+	ImGui_RenderWare_Init();
+
+	Initialize3D(a1);
+}
+
+// 0x39A62C
+void (*DoRWStuffEndOfFrame)(bool a1);
+void DoRWStuffEndOfFrame_hook(bool a1)
+{
+	//LOGI("RwCameraEndUpdate called");
+	DoRWStuffEndOfFrame(a1);
+}
+
+// 0x45B328
+void (*popcycle_display)();
+void popcycle_display_hook()
+{
+	ImGui_RenderWare_NewFrame();
+
+	if(pChatWindow)
+		pChatWindow->Draw();
+
+	ImGui::Render();
+
+	popcycle_display();
+}
+
 void InstallSpecialHooks()
 {
 	// NvFOpen redirect
 	SetUpHook(g_libGTASA+ADDR_NVFOPEN, (uintptr_t)NvFOpen_hook, (uintptr_t*)&NvFOpen);
+	SetUpHook(g_libGTASA+0x40C6B8, (uintptr_t)Initialize3D_hook, (uintptr_t*)&Initialize3D);
+	SetUpHook(g_libGTASA+0x45B328, (uintptr_t)popcycle_display_hook, (uintptr_t*)&popcycle_display);
+	//SetUpHook(g_libGTASA+0x1AD6B8, (uintptr_t)DoRWStuffEndOfFrame_hook, (uintptr_t*)&DoRWStuffEndOfFrame);
 	//
 	//SetUpHook(g_libGTASA+0x1A2B5C, RQ_Command_rqSwapBuffers_hook, (uintptr_t*)&RQ_Command_rqSwapBuffers);
 }
@@ -728,8 +764,8 @@ void InstallGameAndGraphicsLoopHooks()
 
 	SetUpHook(g_libGTASA+0x39D08C, (uintptr_t)CPad__GetPedWalkLeftRight_hook, (uintptr_t*)&CPad__GetPedWalkLeftRight);
 	SetUpHook(g_libGTASA+0x39D110, (uintptr_t)CPad__GetPedWalkUpDown_hook, (uintptr_t*)&CPad__GetPedWalkUpDown);
-	SetUpHook(g_libGTASA+0x39E7B0, (uintptr_t)CPad__DuckJustDown_hook, (uintptr_t*)&CPad__DuckJustDown);
-	SetUpHook(g_libGTASA+0x39E9B8, (uintptr_t)CPad__JumpJustDown_hook, (uintptr_t*)&CPad__JumpJustDown);
+	//SetUpHook(g_libGTASA+0x39E7B0, (uintptr_t)CPad__DuckJustDown_hook, (uintptr_t*)&CPad__DuckJustDown);
+	//SetUpHook(g_libGTASA+0x39E9B8, (uintptr_t)CPad__JumpJustDown_hook, (uintptr_t*)&CPad__JumpJustDown);
 	SetUpHook(g_libGTASA+0x39EAA4, (uintptr_t)CPad__GetSprint_hook, (uintptr_t*)&CPad__GetSprint);
 	SetUpHook(g_libGTASA+0x39DD9C, (uintptr_t)CPad__MeleeAttackJustDown_hook, (uintptr_t*)&CPad__MeleeAttackJustDown);
 	SetUpHook(g_libGTASA+0x39C9E4, (uintptr_t)CPad__GetSteeringLeftRight_hook, (uintptr_t*)&CPad__GetSteeringLeftRight);

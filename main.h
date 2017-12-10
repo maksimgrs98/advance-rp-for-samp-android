@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <algorithm>
+#include <list>
 
 #include <sys/mman.h>
 #include <android/log.h>

@@ -4,7 +4,7 @@
 RsGlobalType* RsGlobal;
 
 	/* rwcore.h */
-RwRaster 	(*RwRasterCreate)(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags);
+RwRaster* 	(*RwRasterCreate)(RwInt32 width, RwInt32 height, RwInt32 depth, RwInt32 flags);
 RwBool 		(*RwRasterDestroy)(RwRaster * raster);
 RwRaster* 	(*RwRasterGetOffset)(RwRaster *raster, RwInt16 *xOffset, RwInt16 *yOffset);
 RwInt32 	(*RwRasterGetNumLevels)(RwRaster * raster);
@@ -33,6 +33,11 @@ RwImage* 	(*RwImageMakeMask)(RwImage * image);
 RwImage* 	(*RwImageReadMaskedImage)(const RwChar * imageName, const RwChar * maskname);
 RwImage* 	(*RwImageRead)(const RwChar * imageName);
 RwImage* 	(*RwImageWrite)(RwImage * image, const RwChar * imageName);
+RwImage* 	(*RwImageSetFromRaster)(RwImage *image, RwRaster *raster);
+RwRaster* 	(*RwRasterSetFromImage)(RwRaster *raster, RwImage *image);
+RwRaster* 	(*RwRasterRead)(const RwChar *filename);
+RwRaster* 	(*RwRasterReadMaskedRaster)(const RwChar *filename, const RwChar *maskname);
+RwImage* 	(*RwImageFindRasterFormat)(RwImage *ipImage, RwInt32 nRasterType, RwInt32 *npWidth, RwInt32 *npHeight, RwInt32 *npDepth,RwInt32 *npFormat);
 
 /* rwlpcore.h */
 RwReal 		(*RwIm2DGetNearScreenZ)(void);
@@ -79,6 +84,11 @@ void InitRenderWareFunctions()
 	*(void **)(&RwImageReadMaskedImage)			= (void*)(g_libGTASA+0x1AFCF8+1);
 	*(void **)(&RwImageRead)					= (void*)(g_libGTASA+0x1AF74C+1);
 	*(void **)(&RwImageWrite)					= (void*)(g_libGTASA+0x1AF980+1);
+	*(void **)(&RwImageSetFromRaster)			= (void*)(g_libGTASA+0x1B023C+1);
+	*(void **)(&RwRasterSetFromImage)			= (void*)(g_libGTASA+0x1B0260+1);
+	*(void **)(&RwRasterRead)					= (void*)(g_libGTASA+0x1B035C+1);
+	*(void **)(&RwRasterReadMaskedRaster)		= (void*)(g_libGTASA+0x1B03CC+1);
+	*(void **)(&RwImageFindRasterFormat)		= (void*)(g_libGTASA+0x1B0284+1);
 
 	/* rwlpcore.h */
 	*(void **)(&RwIm2DGetNearScreenZ)			= (void*)(g_libGTASA+0x1B8038+1);

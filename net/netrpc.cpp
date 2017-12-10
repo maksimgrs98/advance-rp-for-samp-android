@@ -144,7 +144,7 @@ void InitGame(RPCParameters *rpcParams)
 	pLocalPlayer->m_bWaitingForSpawnRequestReply = true;
 	// ========================================
 
-	pChatWindow->AddDebugMessage("Connected to %.64s", pNetGame->m_szHostName);
+	pChatWindow->AddDebugMessage("Connected to {B9C9BF}%.64s", pNetGame->m_szHostName);
 }
 
 void Chat(RPCParameters *rpcParams)

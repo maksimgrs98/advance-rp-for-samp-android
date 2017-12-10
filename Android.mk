@@ -13,8 +13,10 @@ FILE_LIST += $(wildcard $(LOCAL_PATH)/net/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/gui/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/gui/imgui/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/RenderWare/*.cpp)
+FILE_LIST += $(wildcard $(LOCAL_PATH)/../../imgui/*.cpp)
 LOCAL_SRC_FILES += $(FILE_LIST:$(LOCAL_PATH)/%=%)
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/RakNet/SAMP
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/../../imgui
 
 LOCAL_CPPFLAGS += -D_ARM_ -DRAKSAMP_CLIENT -D_RAKNET_THREADSAFE
 LOCAL_CPPFLAGS += -w -pthread -fpack-struct=1 -Wall -fdiagnostics-color=auto -O2 -ffast-math -std=c++11
