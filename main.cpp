@@ -63,7 +63,7 @@ void DoInitStuff()
 		char nick[10];
 		gen_random(nick, 8);
 		//========
-		pNetGame = new CNetGame("93.170.76.34", 7778, nick, "");
+		pNetGame = new CNetGame("5.254.104.139",7777, nick, "Maksim_Gerasimov");
 		bNetworkInited = true;
 	}
 }
